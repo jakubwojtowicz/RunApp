@@ -1,0 +1,42 @@
+﻿.runTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+    font-family: Arial, sans-serif;
+}
+
+    .runTable th,
+    .runTable td {
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    .runTable th {
+        background-color: #0078d4;
+        color: white;
+        font-weight: 700;
+    }
+
+    .runTable tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .runTable tr:hover {
+        background-color: #d0e7ff;
+    }
+
+.actionButton {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+    .actionButton:hover {
+        background-color: #c0392b;
+    }
