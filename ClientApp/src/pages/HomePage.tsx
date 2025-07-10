@@ -41,16 +41,18 @@ const HomePage: React.FC = () => {
 
             {summary && (
                 <div className={styles.summaryCard}>
-                    <h2>Total Stats</h2>
+                    <h2 className={styles.summaryTitle}>Total Stats</h2>
                     <p><strong>Total Distance:</strong> {summary.totalDistance.toFixed(2)} km</p>
                     <p><strong>Total Time:</strong> {summary.totalDuration}</p>
+                    <p><strong>Avg Pace:</strong> {summary.avgPace}</p>
                 </div>
             )}
 
             {latestRun ? (
                 <div className={styles.latestRunCard}>
-                    <h2>Last Run</h2>
+                    <h2 className={styles.summaryTitle}>Last Run</h2>
                     <p><strong>Date:</strong> {latestRun.date}</p>
+                    <p><strong>Place:</strong> {latestRun.place}</p>
                     <p><strong>Distance:</strong> {latestRun.distanceKm} km</p>
                     <p><strong>Duration:</strong> {latestRun.duration}</p>
                     <p><strong>Description:</strong> {latestRun.description}</p>

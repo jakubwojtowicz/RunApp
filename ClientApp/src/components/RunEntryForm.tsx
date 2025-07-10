@@ -9,6 +9,7 @@ interface RunEntryFormProps {
 
 const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
     const [date, setDate] = useState('');
+    const [place, setPlace] = useState<'Outdoor' | 'Treadmill'>('Treadmill');
     const [weekNumber, setWeekNumber] = useState<number | ''>('');
     const [trainingNumberInWeek, setTrainingNumberInWeek] = useState<number | ''>('');
     const [distanceKm, setDistanceKm] = useState<number | ''>('');
@@ -26,6 +27,7 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
 
         const entry: RunEntry = {
             date,
+            place,
             weekNumber: weekNumber === '' ? 0 : weekNumber,
             trainingNumberInWeek: trainingNumberInWeek === '' ? 0 : trainingNumberInWeek,
             distanceKm: typeof distanceKm === 'number' ? distanceKm : parseFloat(distanceKm),
@@ -36,13 +38,17 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
         onSave(entry);
         setMessage('Run saved!');
 
-        // Optionally reset form
         setDate('');
         setWeekNumber('');
         setTrainingNumberInWeek('');
         setDistanceKm('');
         setDuration('');
         setDescription('');
+        setPlace('Treadmill');
+    };
+
+    const handleChangePlace = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setPlace(e.target.value as 'Outdoor' | 'Treadmill');
     };
 
     return (
@@ -56,6 +62,14 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
                     required
                     className={styles.input}
                 />
+            </label>
+
+            <label className={styles.label}>
+                Place:
+                <select value={place} onChange={handleChangePlace} className={styles.select}>
+                    <option value="Outdoor">Outdoor</option>
+                    <option value="Treadmill">Treadmill</option>
+                </select>
             </label>
 
             <label className={styles.label}>

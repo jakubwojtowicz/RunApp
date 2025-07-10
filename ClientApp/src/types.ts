@@ -1,5 +1,6 @@
 ﻿export interface RunEntry {
     date: string;
+    place: 'Outdoor' | 'Treadmill';
     weekNumber: number;
     trainingNumberInWeek: number;
     distanceKm: number;
@@ -9,4 +10,5 @@
 export interface RunSummary {
     totalDistance: number;
     totalDuration: string;
+    avgPace: string;
 }

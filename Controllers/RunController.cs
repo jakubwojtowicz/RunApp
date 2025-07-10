@@ -11,9 +11,9 @@ namespace RunApp.Controllers
         private readonly string _filePath = "run_entries.txt";
 
         [HttpPost]
-        public IActionResult AddRunEntry([FromBody] RunEntry entry)
+        public IActionResult AddRunEntry([FromBody] Run entry)
         {
-            var line = $"{entry.Date:yyyy-MM-dd};{entry.WeekNumber};{entry.TrainingNumberInWeek};{entry.DistanceKm};{entry.Duration};{entry.Description}";
+            var line = $"{entry.Date:yyyy-MM-dd};{entry.Place};{entry.WeekNumber};{entry.TrainingNumberInWeek};{entry.DistanceKm};{entry.Duration};{entry.Description}";
             System.IO.File.AppendAllText(_filePath, line + Environment.NewLine);
             return Ok(new { message = "Saved" });
         }
@@ -71,30 +71,37 @@ namespace RunApp.Controllers
                 totalDuration += entry.Duration;
             }
 
+            TimeSpan avgPace = TimeSpan.Zero;
+            if (totalDistance > 0)
+            {
+                avgPace = TimeSpan.FromSeconds(totalDuration.TotalSeconds / totalDistance);
+            }
+
             return Ok(new
             {
                 totalDistance,
-                totalDuration = totalDuration.ToString(@"hh\:mm\:ss")
+                totalDuration = totalDuration.ToString(@"hh\:mm\:ss"),
+                avgPace = avgPace.ToString(@"mm\:ss")
             });
         }
 
-        private List<RunEntry> getEntries()
+        private List<Run> getEntries()
         {
             var lines = System.IO.File.ReadAllLines(_filePath);
-            var entries = new List<RunEntry>();
+            var entries = new List<Run>();
 
             foreach (var line in lines)
             {
                 var parts = line.Split(';');
-                var entry = new RunEntry
+                var entry = new Run
                 {
                     Date = System.DateOnly.Parse(parts[0]),
-                    WeekNumber = int.Parse(parts[1]),
-                    TrainingNumberInWeek = int.Parse(parts[2]),
-                    DistanceKm = double.Parse(parts[3].Replace(',', '.'), CultureInfo.InvariantCulture),
-                    Duration = System.TimeSpan.Parse(parts[4]),
-                    Description = parts[5]
-
+                    Place = parts[1] == "Outdoor" ? RunPlace.Outdoor : RunPlace.Treadmill,
+                    WeekNumber = int.Parse(parts[2]),
+                    TrainingNumberInWeek = int.Parse(parts[3]),
+                    DistanceKm = double.Parse(parts[4].Replace(',', '.'), CultureInfo.InvariantCulture),
+                    Duration = System.TimeSpan.Parse(parts[5]),
+                    Description = parts[6]
                 };
                 entries.Add(entry);
             }

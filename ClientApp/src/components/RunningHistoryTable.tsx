@@ -40,6 +40,7 @@ const RunningHistoryTable: React.FC<RunningHistoryTableProps> = ({ entries, onDe
                 <thead>
                     <tr>
                         <th>Date</th>
+                        <th>Type</th>
                         <th>Week</th>
                         <th>Number</th>
                         <th>Distance (km)</th>
@@ -52,6 +53,7 @@ const RunningHistoryTable: React.FC<RunningHistoryTableProps> = ({ entries, onDe
                     {currentEntries.map((entry, idx) => (
                         <tr key={idx}>
                             <td>{entry.date}</td>
+                            <td>{entry.place}</td>
                             <td>{entry.weekNumber}</td>
                             <td>{entry.trainingNumberInWeek}</td>
                             <td>{entry.distanceKm.toFixed(2)}</td>
