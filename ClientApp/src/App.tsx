@@ -1,13 +1,20 @@
 import React from 'react';
-import RunPage from './components/RunPage';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import HistoryPage from './pages/HistoryPage';
+import Navbar from './components/Navbar';
 
 function App() {
-  return (
-    <div>
-      <h1>RunApp</h1>
-      <RunPage />
-    </div>
-  );
+    return (
+        <>
+        <Navbar />
+        <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/history" element={<HistoryPage />} />
+        </Routes>
+         </>
+    );
+
 }
 
 export default App;

@@ -4,9 +4,10 @@ import { RunEntry } from '../types';
 
 interface RunEntryFormProps {
     onSave: (entry: RunEntry) => void;
+    onCancel: () => void;
 }
 
-const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave }) => {
+const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
     const [date, setDate] = useState('');
     const [weekNumber, setWeekNumber] = useState<number | ''>('');
     const [trainingNumberInWeek, setTrainingNumberInWeek] = useState<number | ''>('');
@@ -114,9 +115,17 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave }) => {
                 />
             </label>
 
-            <button type="submit" className={styles.button}>
-                Save
-            </button>
+            <div className={styles.buttonsContainer}>
+
+                <button type="submit" className={styles.button}>
+                    Save
+                </button>
+
+                <button type="button" className={styles.button} onClick={onCancel}>
+                    Cancel
+                </button>
+
+            </div>
 
             <p className={styles.message}>{message}</p>
         </form>

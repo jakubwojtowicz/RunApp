@@ -1,13 +1,15 @@
 ﻿import React, { useEffect, useState } from 'react';
-import RunEntryForm from './RunEntryForm';
+import RunEntryForm from '../components/RunEntryForm';
+import RunningHistoryTable from '../components/RunningHistoryTable';
 import { RunEntry } from '../types';
-import RunningHistoryTable from './RunningHistoryTable';
-import styles from './RunPage.module.css';
+import styles from './HistoryPage.module.css';
 
-
-const RunPage: React.FC = () => {
-    const [showForm, setShowForm] = useState(false);
+const HistoryPage = () => {
+    const [showModal, setShowModal] = useState(false);
     const [entries, setEntries] = useState<RunEntry[]>([]);
+
+    const handleAddClick = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
 
     const fetchEntries = async () => {
         try {
@@ -36,6 +38,7 @@ const RunPage: React.FC = () => {
                 throw new Error('Failed to save new run entry');
             }
             fetchEntries();
+            setShowModal(false);
         } catch (error) {
             console.error(error);
         }
@@ -58,18 +61,25 @@ const RunPage: React.FC = () => {
     };
 
     return (
-        <div className={styles.container}>
-            <button className={styles.button} onClick={() => setShowForm(prev => !prev)}>
-                {showForm ? 'Hide form' : 'Add new run'}
-            </button>
-
-            {showForm && (
-                <RunEntryForm onSave={handleSave} />
-            )}
-
+        <>
             <RunningHistoryTable entries={entries} onDelete={handleDelete} />
-        </div>
+
+            <div className={styles.centeredButtonWrapper}>
+                <button onClick={handleAddClick}>Add New Run</button>
+            </div>
+
+            {showModal && (
+                <div className={styles.modalBackdrop}>
+                    <div className={styles.modalContent}>
+                        <RunEntryForm
+                            onSave={handleSave}
+                            onCancel={handleCloseModal}
+                        />
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
 
-export default RunPage;
+export default HistoryPage;

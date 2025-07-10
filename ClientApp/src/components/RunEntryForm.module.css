@@ -1,5 +1,4 @@
 ﻿.form {
-    margin: 20px 0;
     padding: 15px;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -51,4 +50,11 @@ textarea {
     margin-top: 10px;
     color: green;
     font-weight: 600;
+}
+
+.buttonsContainer {
+    display: flex;
+    justify-content: center; 
+    gap: 20px; 
+    margin-top: 20px; 
 }
