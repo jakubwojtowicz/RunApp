@@ -52,7 +52,7 @@ const HomePage: React.FC = () => {
                 <div className={styles.latestRunCard}>
                     <h2 className={styles.summaryTitle}>Last Run</h2>
                     <p><strong>Date:</strong> {latestRun.date}</p>
-                    <p><strong>Place:</strong> {latestRun.place}</p>
+                    <p><strong>Type:</strong> {latestRun.place}</p>
                     <p><strong>Distance:</strong> {latestRun.distanceKm} km</p>
                     <p><strong>Duration:</strong> {latestRun.duration}</p>
                     <p><strong>Description:</strong> {latestRun.description}</p>
