@@ -18,29 +18,24 @@ namespace RunApp.Controllers
             return Ok(new { message = "Saved" });
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         public IActionResult GetAll()
         {
-            var lines = System.IO.File.ReadAllLines(_filePath);
-            var entries = new List<RunEntry>();
-
-            foreach (var line in lines)
-            {
-                var parts = line.Split(';');
-                var entry = new RunEntry
-                {
-                    Date = System.DateOnly.Parse(parts[0]),
-                    WeekNumber = int.Parse(parts[1]),
-                    TrainingNumberInWeek = int.Parse(parts[2]),
-                    DistanceKm = double.Parse(parts[3].Replace(',', '.'), CultureInfo.InvariantCulture),
-                    Duration = System.TimeSpan.Parse(parts[4]),
-                    Description = parts[5]
-
-                };
-                entries.Add(entry);
-            }
+            var entries = getEntries();
 
             return Ok(entries);
+        }
+
+        [HttpGet("latest")]
+        public IActionResult GetLatestRun()
+        {
+            var entries = getEntries();
+
+            var latestRun = entries
+                .OrderByDescending(e => e.Date)
+                .FirstOrDefault();
+
+            return Ok(latestRun);
         }
 
         [HttpDelete("{index}")]
@@ -62,6 +57,49 @@ namespace RunApp.Controllers
             {
                 return StatusCode(500, $"Error: {ex.Message}");
             }
+        }
+
+        [HttpGet("summary")]
+        public IActionResult GetSummary()
+        {
+            var entries = getEntries();
+            var totalDistance = entries.Sum(e => e.DistanceKm);
+            var totalDuration = TimeSpan.Zero;
+
+            foreach (var entry in entries)
+            {
+                totalDuration += entry.Duration;
+            }
+
+            return Ok(new
+            {
+                totalDistance,
+                totalDuration = totalDuration.ToString(@"hh\:mm\:ss")
+            });
+        }
+
+        private List<RunEntry> getEntries()
+        {
+            var lines = System.IO.File.ReadAllLines(_filePath);
+            var entries = new List<RunEntry>();
+
+            foreach (var line in lines)
+            {
+                var parts = line.Split(';');
+                var entry = new RunEntry
+                {
+                    Date = System.DateOnly.Parse(parts[0]),
+                    WeekNumber = int.Parse(parts[1]),
+                    TrainingNumberInWeek = int.Parse(parts[2]),
+                    DistanceKm = double.Parse(parts[3].Replace(',', '.'), CultureInfo.InvariantCulture),
+                    Duration = System.TimeSpan.Parse(parts[4]),
+                    Description = parts[5]
+
+                };
+                entries.Add(entry);
+            }
+
+            return entries;
         }
     }
 }

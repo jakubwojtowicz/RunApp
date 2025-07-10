@@ -11,3 +11,4 @@
 2025-06-30;4;2;3,83;00:35:00;5 min marsz → 3 × (7 min bieg / 1 min marsz) → 5 min marsz
 2025-07-02;4;3;4,03;00:35:00;5 min marsz → 20 min bieg + 5 min szybszy bieg → 5 min marsz
 2025-07-07;5;1;5,2;00:45:00;5 min marsz → 35 min bieg → 5 min marsz
+2025-07-10;5;2;4,78;00:42:00;5 min marsz -> 4 x (6 min bieg / 1 min szybszy bieg / 1 min marsz) -> 5 min marsz

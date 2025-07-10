@@ -13,12 +13,12 @@ const HistoryPage = () => {
 
     const fetchEntries = async () => {
         try {
-            const res = await fetch('https://localhost:7125/api/run');
+            const res = await fetch('https://localhost:7125/api/run/all');
             if (!res.ok) throw new Error('Failed to fetch runs');
             const data: RunEntry[] = await res.json();
             setEntries(data);
         } catch (error) {
-            console.error(error);
+            console.error("Error fetching run entries: ",error);
         }
     };
 

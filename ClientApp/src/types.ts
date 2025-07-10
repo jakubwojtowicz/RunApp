@@ -6,3 +6,7 @@
     duration: string;
     description: string;
 }
+export interface RunSummary {
+    totalDistance: number;
+    totalDuration: string;
+}
