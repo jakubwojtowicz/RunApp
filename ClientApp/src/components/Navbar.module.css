@@ -1,6 +1,7 @@
 ﻿.navbar {
     background-color: #333;
-    padding: 1rem;
+    padding: 2rem;
+    font-size: 25px;
 }
 
 .navList {
