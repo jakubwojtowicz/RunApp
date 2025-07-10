@@ -12,7 +12,6 @@ const ITEMS_PER_PAGE = 5;
 const RunningHistoryTable: React.FC<RunningHistoryTableProps> = ({ entries, onDelete }) => {
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Najpierw sortujemy dane malejąco po dacie
     const sortedEntries = [...entries].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
