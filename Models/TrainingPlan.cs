@@ -7,7 +7,7 @@
         public string? Description { get; set; }
         public DateOnly StartDate { get; set; }
         public DateOnly EndDate { get; set;}
-        public List<Run> runsFinished { get; set; }
-        public List<Run> runsLeft { get; set; }
+        public List<Run> RunsFinished { get; set; }
+        public List<Run> RunsLeft { get; set; }
     }
 }
