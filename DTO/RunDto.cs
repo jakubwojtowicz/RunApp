@@ -1,15 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using RunApp.Models;
+using System.Text.Json.Serialization;
 
-namespace RunApp.Models
+namespace RunApp.DTO
 {
-    public enum RunPlace
+    public class RunDto
     {
-        Outdoor,
-        Treadmill
-    }
-    public class Run
-    {
-        public int Id { get; set; }
         public DateOnly Date { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public RunPlace Place { get; set; }

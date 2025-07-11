@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RunApp.DTO;
 using RunApp.Models;
 using System.Globalization;
 
@@ -13,9 +14,28 @@ namespace RunApp.Controllers
         [HttpPost]
         public IActionResult AddRunEntry([FromBody] Run entry)
         {
-            var line = $"{entry.Date:yyyy-MM-dd};{entry.Place};{entry.WeekNumber};{entry.TrainingNumberInWeek};{entry.DistanceKm};{entry.Duration};{entry.Description}";
-            System.IO.File.AppendAllText(_filePath, line + Environment.NewLine);
-            return Ok(new { message = "Saved" });
+            var lines = System.IO.File.Exists(_filePath)
+                ? System.IO.File.ReadAllLines(_filePath).ToList()
+                : new List<string>();
+
+            int maxId = 0;
+
+            foreach (var line in lines)
+            {
+                var parts = line.Split(';');
+                if (int.TryParse(parts[0], out int id))
+                {
+                    maxId = Math.Max(maxId, id);
+                }
+            }
+
+            entry.Id = maxId + 1;
+
+            var newLine = $"{entry.Id};{entry.Date:yyyy-MM-dd};{entry.Place};{entry.WeekNumber};{entry.TrainingNumberInWeek};{entry.DistanceKm};{entry.Duration};{entry.Description}";
+
+            System.IO.File.AppendAllText(_filePath, newLine + Environment.NewLine);
+
+            return Ok(new { message = "Saved", entry.Id });
         }
 
         [HttpGet("all")]
@@ -85,23 +105,23 @@ namespace RunApp.Controllers
             });
         }
 
-        private List<Run> getEntries()
+        private List<RunDto> getEntries()
         {
             var lines = System.IO.File.ReadAllLines(_filePath);
-            var entries = new List<Run>();
+            var entries = new List<RunDto>();
 
             foreach (var line in lines)
             {
                 var parts = line.Split(';');
-                var entry = new Run
+                var entry = new RunDto
                 {
-                    Date = System.DateOnly.Parse(parts[0]),
-                    Place = parts[1] == "Outdoor" ? RunPlace.Outdoor : RunPlace.Treadmill,
-                    WeekNumber = int.Parse(parts[2]),
-                    TrainingNumberInWeek = int.Parse(parts[3]),
-                    DistanceKm = double.Parse(parts[4].Replace(',', '.'), CultureInfo.InvariantCulture),
-                    Duration = System.TimeSpan.Parse(parts[5]),
-                    Description = parts[6]
+                    Date = System.DateOnly.Parse(parts[1]),
+                    Place = parts[2] == "Outdoor" ? RunPlace.Outdoor : RunPlace.Treadmill,
+                    WeekNumber = int.Parse(parts[3]),
+                    TrainingNumberInWeek = int.Parse(parts[4]),
+                    DistanceKm = double.Parse(parts[5].Replace(',', '.'), CultureInfo.InvariantCulture),
+                    Duration = System.TimeSpan.Parse(parts[6]),
+                    Description = parts[7]
                 };
                 entries.Add(entry);
             }
