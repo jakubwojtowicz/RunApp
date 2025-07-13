@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using RunApp.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,6 +16,8 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<RunDbContext>();
 
 var app = builder.Build();
 

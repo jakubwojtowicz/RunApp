@@ -1,101 +1,129 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RunApp.DTO;
+using Microsoft.EntityFrameworkCore;
+using RunApp.DTO.Run;
 using RunApp.Models;
-using System.Globalization;
 
 namespace RunApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RunController: ControllerBase
+    public class RunController : ControllerBase
     {
-        private readonly string _filePath = "run_entries.txt";
+        private readonly RunDbContext _context;
+
+        public RunController(RunDbContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Run>> GetById(int id)
+        {
+            var run = await _context.Runs.FindAsync(id);
+
+            if (run == null)
+                return NotFound();
+
+            return Ok(run);
+        }
 
         [HttpPost]
-        public IActionResult Add([FromBody] Run entry)
+        public async Task<IActionResult> Add([FromBody] RunCreateDto dto)
         {
-            var lines = System.IO.File.Exists(_filePath)
-                ? System.IO.File.ReadAllLines(_filePath).ToList()
-                : new List<string>();
-
-            int maxId = 0;
-
-            foreach (var line in lines)
+            var run = new Run
             {
-                var parts = line.Split(';');
-                if (int.TryParse(parts[0], out int id))
-                {
-                    maxId = Math.Max(maxId, id);
-                }
-            }
+                Date = dto.Date,
+                Place = dto.Place,
+                DistanceKm = dto.DistanceKm,
+                Duration = dto.Duration,
+                Description = dto.Description,
+                WeekNumber = dto.WeekNumber,
+                TrainingNumberInWeek = dto.TrainingNumberInWeek,
+                IsCompleted = dto.IsCompleted,
+                TrainingPlanId = dto.TrainingPlanId
+            };
 
-            entry.Id = maxId + 1;
+            _context.Runs.Add(run);
+            await _context.SaveChangesAsync();
 
-            var newLine = $"{entry.Id};{entry.Date:yyyy-MM-dd};{entry.Place};{entry.WeekNumber};{entry.TrainingNumberInWeek};{entry.DistanceKm};{entry.Duration};{entry.Description}";
-
-            System.IO.File.AppendAllText(_filePath, newLine + Environment.NewLine);
-
-            return Ok(new { message = "Saved", entry.Id });
+            return CreatedAtAction(nameof(GetById), new { id = run.Id }, run);
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public async Task<ActionResult<IEnumerable<RunDto>>> Get()
         {
-            var entries = getEntries();
+            var runs = await _context.Runs
+                .Include(r => r.TrainingPlan)
+                .ToListAsync();
 
-            return Ok(entries);
+            var result = runs.Select(r => new RunDto
+            {
+                Id = r.Id,
+                Date = r.Date,
+                Place = r.Place,
+                DistanceKm = r.DistanceKm,
+                Duration = r.Duration,
+                Description = r.Description,
+                WeekNumber = r.WeekNumber,
+                TrainingNumberInWeek = r.TrainingNumberInWeek,
+                IsCompleted = r.IsCompleted,
+                TrainingPlanId = r.TrainingPlanId
+            });
+
+            return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var run = await _context.Runs.FindAsync(id);
+            if (run == null)
+                return NotFound("Run entry not found.");
+
+            _context.Runs.Remove(run);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
         [HttpGet("latest")]
-        public IActionResult GetLatestRun()
+        public async Task<IActionResult> GetLatestRun()
         {
-            var entries = getEntries();
+            var latestRun = await _context.Runs
+                .OrderByDescending(r => r.Date)
+                .FirstOrDefaultAsync();
 
-            var latestRun = entries
-                .OrderByDescending(e => e.Date)
-                .FirstOrDefault();
+            if (latestRun == null)
+                return NotFound("No runs found.");
 
-            return Ok(latestRun);
-        }
-
-        [HttpDelete("{index}")]
-        public IActionResult Delete(int index)
-        {
-            try
+            var latestRunDto = new RunDto
             {
-                var lines = System.IO.File.ReadAllLines(_filePath).ToList();
+                Id = latestRun.Id,
+                Date = latestRun.Date,
+                Place = latestRun.Place,
+                DistanceKm = latestRun.DistanceKm,
+                Duration = latestRun.Duration,
+                Description = latestRun.Description,
+                IsCompleted = latestRun.IsCompleted, 
+                TrainingPlanId = latestRun.TrainingPlanId
+            };
 
-                if (index < 0 || index >= lines.Count)
-                    return NotFound("Run entry not found.");
-
-                lines.RemoveAt(index);
-                System.IO.File.WriteAllLines(_filePath, lines);
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error: {ex.Message}");
-            }
+            return Ok(latestRunDto);
         }
 
         [HttpGet("summary")]
-        public IActionResult GetSummary()
+        public async Task<IActionResult> GetSummary()
         {
-            var entries = getEntries();
-            var totalDistance = entries.Sum(e => e.DistanceKm);
-            var totalDuration = TimeSpan.Zero;
+            var runs = await _context.Runs
+                .Where(r => r.IsCompleted) 
+                .ToListAsync();
 
-            foreach (var entry in entries)
-            {
-                totalDuration += entry.Duration;
-            }
+            var totalDistance = runs.Sum(r => r.DistanceKm);
+            var totalDuration = runs.Aggregate(TimeSpan.Zero, (acc, r) => acc + r.Duration);
 
-            TimeSpan avgPace = TimeSpan.Zero;
-            if (totalDistance > 0)
-            {
-                avgPace = TimeSpan.FromSeconds(totalDuration.TotalSeconds / totalDistance);
-            }
+            TimeSpan avgPace = totalDistance > 0
+                ? TimeSpan.FromSeconds(totalDuration.TotalSeconds / totalDistance)
+                : TimeSpan.Zero;
 
             return Ok(new
             {
@@ -105,28 +133,28 @@ namespace RunApp.Controllers
             });
         }
 
-        private List<RunDto> getEntries()
+        [HttpGet("by-plan/{trainingPlanId}")]
+        public async Task<IActionResult> GetByTrainingPlan(int trainingPlanId)
         {
-            var lines = System.IO.File.ReadAllLines(_filePath);
-            var entries = new List<RunDto>();
+            var runs = await _context.Runs
+                .Where(r => r.TrainingPlanId == trainingPlanId)
+                .ToListAsync();
 
-            foreach (var line in lines)
+            var result = runs.Select(r => new RunDto
             {
-                var parts = line.Split(';');
-                var entry = new RunDto
-                {
-                    Date = System.DateOnly.Parse(parts[1]),
-                    Place = parts[2] == "Outdoor" ? RunPlace.Outdoor : RunPlace.Treadmill,
-                    WeekNumber = int.Parse(parts[3]),
-                    TrainingNumberInWeek = int.Parse(parts[4]),
-                    DistanceKm = double.Parse(parts[5].Replace(',', '.'), CultureInfo.InvariantCulture),
-                    Duration = System.TimeSpan.Parse(parts[6]),
-                    Description = parts[7]
-                };
-                entries.Add(entry);
-            }
+                Id = r.Id,
+                Date = r.Date,
+                Place = r.Place,
+                DistanceKm = r.DistanceKm,
+                Duration = r.Duration,
+                Description = r.Description,
+                WeekNumber = r.WeekNumber,
+                TrainingNumberInWeek = r.TrainingNumberInWeek,
+                IsCompleted = r.IsCompleted,
+                TrainingPlanId = r.TrainingPlanId
+            });
 
-            return entries;
+            return Ok(result);
         }
     }
 }
