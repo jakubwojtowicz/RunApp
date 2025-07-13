@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RunApp.DTO.Run;
 using RunApp.DTO.TrainingPlan;
 using RunApp.Models;
 using System;
+using System.Text;
 
 namespace RunApp.Controllers
 {
@@ -21,9 +23,32 @@ namespace RunApp.Controllers
         public async Task<IActionResult> GetAll()
         {
             var plans = await _context.TrainingPlans
+                .Include(p => p.Runs)
                 .ToListAsync();
 
-            return Ok(plans);
+            var result = plans.Select(p => new TrainingPlanDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                StartDate = p.StartDate,
+                EndDate = p.EndDate,
+                Runs = p.Runs.Select(r => new RunDto
+                {
+                    Id = r.Id,
+                    Date = r.Date,
+                    Place = r.Place,
+                    DistanceKm = r.DistanceKm,
+                    Duration = r.Duration,
+                    Description = r.Description,
+                    WeekNumber = r.WeekNumber,
+                    TrainingNumberInWeek = r.TrainingNumberInWeek,
+                    IsCompleted = r.IsCompleted,
+                    TrainingPlanId = r.TrainingPlanId
+                }).ToList()
+            }).ToList();
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
@@ -35,11 +60,33 @@ namespace RunApp.Controllers
             if (plan == null)
                 return NotFound();
 
+            var result = new TrainingPlanDto 
+            {
+                Id = plan.Id,
+                Name = plan.Name,
+                Description = plan.Description,
+                StartDate = plan.StartDate,
+                EndDate = plan.EndDate,
+                Runs = plan.Runs.Select(r => new RunDto
+                {
+                    Id = r.Id,
+                    Date = r.Date,
+                    Place = r.Place,
+                    DistanceKm = r.DistanceKm,
+                    Duration = r.Duration,
+                    Description = r.Description,
+                    WeekNumber = r.WeekNumber,
+                    TrainingNumberInWeek = r.TrainingNumberInWeek,
+                    IsCompleted = r.IsCompleted,
+                    TrainingPlanId = r.TrainingPlanId
+                }).ToList()
+            };
+
             return Ok(plan);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] TrainingPlanDto planDto)
+        public async Task<IActionResult> Add([FromBody] TrainingPlanUpdateDto planDto)
         {
             var plan = new TrainingPlan
             {
