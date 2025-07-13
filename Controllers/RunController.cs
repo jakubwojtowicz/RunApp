@@ -12,7 +12,7 @@ namespace RunApp.Controllers
         private readonly string _filePath = "run_entries.txt";
 
         [HttpPost]
-        public IActionResult AddRunEntry([FromBody] Run entry)
+        public IActionResult Add([FromBody] Run entry)
         {
             var lines = System.IO.File.Exists(_filePath)
                 ? System.IO.File.ReadAllLines(_filePath).ToList()
@@ -38,8 +38,8 @@ namespace RunApp.Controllers
             return Ok(new { message = "Saved", entry.Id });
         }
 
-        [HttpGet("all")]
-        public IActionResult GetAll()
+        [HttpGet]
+        public IActionResult Get()
         {
             var entries = getEntries();
 
