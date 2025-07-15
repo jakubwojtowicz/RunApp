@@ -1,9 +1,9 @@
 ﻿import React, { useState } from 'react';
 import styles from './RunEntryForm.module.css';
-import { RunEntry } from '../types';
+import { RunCreateDto } from '../types';
 
 interface RunEntryFormProps {
-    onSave: (entry: RunEntry) => void;
+    onSave: (entry: RunCreateDto) => void;
     onCancel: () => void;
 }
 
@@ -25,18 +25,19 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
             return;
         }
 
-        const entry: RunEntry = {
+        const entry: RunCreateDto = {
             date,
             place,
-            weekNumber: weekNumber === '' ? 0 : weekNumber,
-            trainingNumberInWeek: trainingNumberInWeek === '' ? 0 : trainingNumberInWeek,
             distanceKm: typeof distanceKm === 'number' ? distanceKm : parseFloat(distanceKm),
             duration,
             description,
+            weekNumber: weekNumber === '' ? 0 : weekNumber,
+            trainingNumberInWeek: trainingNumberInWeek === '' ? 0 : trainingNumberInWeek,
+            isCompleted: true,
+            trainingPlanId: 0
         };
 
         onSave(entry);
-        setMessage('Run saved!');
 
         setDate('');
         setWeekNumber('');

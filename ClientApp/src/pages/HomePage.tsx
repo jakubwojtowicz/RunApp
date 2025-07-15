@@ -1,9 +1,9 @@
 ﻿import React, { useEffect, useState } from 'react';
-import { RunEntry, RunSummary } from '../types';
+import { RunDto, RunSummary } from '../types';
 import styles from './HomePage.module.css';
 
 const HomePage: React.FC = () => {
-    const [latestRun, setLatestRun] = useState<RunEntry | null>(null);
+    const [latestRun, setLatestRun] = useState<RunDto | null>(null);
     const [summary, setSummary] = useState<RunSummary | null>(null);
 
     useEffect(() => {

@@ -1,9 +1,9 @@
 ﻿import React, { useState } from 'react';
-import { RunEntry } from '../types';
+import { RunDto } from '../types';
 import styles from './RunningHistoryTable.module.css';
 
 interface RunningHistoryTableProps {
-    entries: RunEntry[];
+    entries: RunDto[];
     onDelete: (index: number) => void;
 }
 

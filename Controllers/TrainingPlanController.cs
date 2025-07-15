@@ -4,6 +4,7 @@ using RunApp.DTO.Run;
 using RunApp.DTO.TrainingPlan;
 using RunApp.Models;
 using System;
+using System.Numerics;
 using System.Text;
 
 namespace RunApp.Controllers
@@ -51,6 +52,43 @@ namespace RunApp.Controllers
             return Ok(result);
         }
 
+        [HttpGet("current")]
+        public async Task<IActionResult> GetCurrent()
+        {
+            var plan = await _context.TrainingPlans
+                .Include(p => p.Runs)
+                .Where(p => p.IsCurrent == true)
+                .FirstOrDefaultAsync();
+
+            if (plan == null)
+                return NotFound();
+
+            var result = new TrainingPlanDto
+            {
+                Id = plan.Id,
+                Name = plan.Name,
+                Description = plan.Description,
+                StartDate = plan.StartDate,
+                EndDate = plan.EndDate,
+                Runs = plan.Runs.Select(r => new RunDto
+                {
+                    Id = r.Id,
+                    Date = r.Date,
+                    Place = r.Place,
+                    DistanceKm = r.DistanceKm,
+                    Duration = r.Duration,
+                    Description = r.Description,
+                    WeekNumber = r.WeekNumber,
+                    TrainingNumberInWeek = r.TrainingNumberInWeek,
+                    IsCompleted = r.IsCompleted,
+                    TrainingPlanId = r.TrainingPlanId
+                }).ToList(),
+                IsCurrent = plan.IsCurrent
+            };
+
+            return Ok(result);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -82,18 +120,27 @@ namespace RunApp.Controllers
                 }).ToList()
             };
 
-            return Ok(plan);
+            return Ok(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] TrainingPlanUpdateDto planDto)
         {
+            var current = await _context.TrainingPlans
+                .FirstOrDefaultAsync(p => p.IsCurrent == true);
+
+            if(current != null && planDto.IsCurrent == true)
+            {
+                return BadRequest("Cannot create second current training plan.");
+            }
+
             var plan = new TrainingPlan
             {
                 Name = planDto.Name,
                 Description = planDto.Description,
                 StartDate = planDto.StartDate,
-                EndDate = planDto.EndDate
+                EndDate = planDto.EndDate,
+                IsCurrent = planDto.IsCurrent,
             };
             _context.TrainingPlans.Add(plan);
             await _context.SaveChangesAsync();

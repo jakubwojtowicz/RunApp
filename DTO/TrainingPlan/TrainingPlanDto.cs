@@ -10,5 +10,6 @@ namespace RunApp.DTO.TrainingPlan
         public DateOnly StartDate { get; set; }
         public DateOnly EndDate { get; set; }
         public virtual List<RunDto> Runs { get; set; }
+        public bool IsCurrent { get; set; }
     }
 }

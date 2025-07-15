@@ -6,5 +6,6 @@
         public string Description { get; set; }
         public DateOnly StartDate { get; set; }
         public DateOnly EndDate { get; set; }
+        public bool IsCurrent { get; set; }
     }
 }

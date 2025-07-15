@@ -8,5 +8,6 @@
         public DateOnly StartDate { get; set; }
         public DateOnly EndDate { get; set;}
         public virtual List<Run> Runs { get; set; }
+        public bool IsCurrent { get; set; }
     }
 }
