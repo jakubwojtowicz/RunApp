@@ -21,7 +21,7 @@ namespace RunApp.Models
                 .IsRequired();
             modelBuilder.Entity<Run>()
                 .Property(r => r.Place)
-                .HasConversion<string>();
+                .HasMaxLength(150);
             modelBuilder.Entity<Run>()
                 .Property(r => r.Date)
                 .HasConversion(

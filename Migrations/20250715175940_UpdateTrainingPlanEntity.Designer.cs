@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RunApp.Models;
 
@@ -10,9 +11,11 @@ using RunApp.Models;
 namespace RunApp.Migrations
 {
     [DbContext(typeof(RunDbContext))]
-    partial class RunDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250715175940_UpdateTrainingPlanEntity")]
+    partial class UpdateTrainingPlanEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.7");
@@ -42,7 +45,6 @@ namespace RunApp.Migrations
 
                     b.Property<string>("Place")
                         .IsRequired()
-                        .HasMaxLength(150)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("TrainingNumberInWeek")

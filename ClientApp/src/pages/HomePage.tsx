@@ -48,7 +48,7 @@ const HomePage: React.FC = () => {
                 </div>
             )}
 
-            {latestRun ? (
+            {latestRun && (
                 <div className={styles.latestRunCard}>
                     <h2 className={styles.summaryTitle}>Last Run</h2>
                     <p><strong>Date:</strong> {latestRun.date}</p>
@@ -57,8 +57,6 @@ const HomePage: React.FC = () => {
                     <p><strong>Duration:</strong> {latestRun.duration}</p>
                     <p><strong>Description:</strong> {latestRun.description}</p>
                 </div>
-            ) : (
-                <p>Loading latest run...</p>
             )}
         </div>
     );

@@ -85,8 +85,8 @@ const TrainingPlan = () => {
             if (!response.ok) {
                 throw new Error('Failed to save new run entry');
             }
-            const savedRun = await response.json();
-            setRuns((prev) => [...prev, savedRun]);
+
+            fetchRuns();
             setShowAddRunModal(false);
 
         } catch (error) {

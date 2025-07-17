@@ -1,11 +1,12 @@
 ﻿using RunApp.Models;
+using System.Text.Json.Serialization;
 
 namespace RunApp.DTO.Run
 {
     public class RunCreateDto
     {
         public DateOnly Date { get; set; }
-        public RunPlace Place { get; set; }
+        public string Place { get; set; }
         public double DistanceKm { get; set; }
         public TimeSpan Duration { get; set; }
         public string Description { get; set; }

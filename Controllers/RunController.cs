@@ -17,7 +17,7 @@ namespace RunApp.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Run>> GetById(int id)
+        public async Task<ActionResult<RunDto>> GetById(int id)
         {
             var run = await _context.Runs.FindAsync(id);
 
@@ -30,6 +30,12 @@ namespace RunApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] RunCreateDto dto)
         {
+            var plan = await _context.TrainingPlans
+                .FirstOrDefaultAsync(p => p.Id == dto.TrainingPlanId);
+
+            if (plan == null)
+                return NotFound($"Training plan with the id: {dto.TrainingPlanId} doesn't exist in the database.");
+
             var run = new Run
             {
                 Date = dto.Date,
@@ -46,7 +52,21 @@ namespace RunApp.Controllers
             _context.Runs.Add(run);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = run.Id }, run);
+            var runDto = new RunDto
+            {
+                Id = run.Id,
+                Date = run.Date,
+                Place = run.Place,
+                DistanceKm = run.DistanceKm,
+                Duration = run.Duration,
+                Description = run.Description,
+                WeekNumber = run.WeekNumber,
+                TrainingNumberInWeek = run.TrainingNumberInWeek,
+                IsCompleted = run.IsCompleted,
+                TrainingPlanId = run.TrainingPlanId
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = run.Id }, runDto);
         }
 
         [HttpGet]
@@ -117,6 +137,11 @@ namespace RunApp.Controllers
             var runs = await _context.Runs
                 .Where(r => r.IsCompleted) 
                 .ToListAsync();
+
+            if(runs.Count == 0)
+            {
+                return NotFound("Completed runs not found in the database.");
+            }
 
             var totalDistance = runs.Sum(r => r.DistanceKm);
             var totalDuration = runs.Aggregate(TimeSpan.Zero, (acc, r) => acc + r.Duration);

@@ -60,7 +60,7 @@ const RunningHistoryTable: React.FC<RunningHistoryTableProps> = ({ entries, onDe
                             <td>{entry.description}</td>
                             <td>
                                 <button
-                                    onClick={() => onDelete(entries.indexOf(entry))}
+                                    onClick={() => onDelete(entry.id)}
                                     className={styles.actionButton}
                                 >
                                     Remove
