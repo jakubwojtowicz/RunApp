@@ -15,6 +15,7 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
     const [distanceKm, setDistanceKm] = useState<number | ''>('');
     const [duration, setDuration] = useState('');
     const [description, setDescription] = useState('');
+    const [isCompleted, setIsCompleted] = useState(false);
     const [message, setMessage] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -33,7 +34,7 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
             description,
             weekNumber: weekNumber === '' ? 0 : weekNumber,
             trainingNumberInWeek: trainingNumberInWeek === '' ? 0 : trainingNumberInWeek,
-            isCompleted: true,
+            isCompleted,
             trainingPlanId: 0
         };
 
@@ -127,6 +128,16 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
                     value={description}
                     onChange={e => setDescription(e.target.value)}
                     className={styles.input}
+                />
+            </label>
+
+            <label className={styles.label}>
+                Completed:
+                <input
+                    type="checkbox"
+                    checked={isCompleted}
+                    onChange={e => setIsCompleted(e.target.checked)}
+                    className={styles.checkbox}
                 />
             </label>
 

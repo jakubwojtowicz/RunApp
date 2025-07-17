@@ -65,3 +65,11 @@ textarea {
     margin-top: 4px;
     margin-left: 10px;
 }
+
+.checkbox {
+    width: 18px;
+    height: 18px;
+    margin-left: 10px;
+    cursor: pointer;
+    accent-color: #007bff; 
+}
