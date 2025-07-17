@@ -1,15 +1,17 @@
 ﻿import React, { useEffect, useState } from 'react';
 import RunEntryForm from '../components/RunEntryForm';
-import RunningHistoryTable from '../components/RunningHistoryTable';
+import CompletedRunsTable from '../components/CompletedRunsTable';
 import TrainingPlanForm from '../components/TrainingPlanForm';
 import { RunCreateDto, RunDto, TrainingPlanCreateDto, TrainingPlanDto } from '../types';
 import styles from './TrainingPlanPage.module.css';
+import UpcomingRunsTable from '../components/UpcomingRunsTable';
 
 const TrainingPlan = () => {
     const [currentTrainingPlan, setCurrentTrainingPlan] = useState<TrainingPlanDto>();
     const [hasPlan, setHasPlan] = useState(false);
     const [showAddRunModal, setShowAddRunModal] = useState(false);
-    const [runs, setRuns] = useState<RunDto[]>([]);
+    const [upcomingRuns, setUpcomingRuns] = useState<RunDto[]>([]);
+    const [completedRuns, setCompletedRuns] = useState<RunDto[]>([]);
     const [showPlanForm, setShowPlanForm] = useState(false);
 
     const handleAddClick = () => setShowAddRunModal(true);
@@ -43,7 +45,13 @@ const TrainingPlan = () => {
             const res = await fetch(`https://localhost:7125/api/run/by-plan/${currentTrainingPlan?.id}`);
             if (!res.ok) throw new Error('Failed to fetch runs');
             const data: RunDto[] = await res.json();
-            setRuns(data);
+
+            const completed = data.filter(run => run.isCompleted);
+            const upcoming = data.filter(run => !run.isCompleted);
+
+            setCompletedRuns(completed);
+            setUpcomingRuns(upcoming);
+
         } catch (error) {
             console.error("Error fetching run entries: ",error);
         }
@@ -133,13 +141,23 @@ const TrainingPlan = () => {
                         </p>
                     </div>
 
-                    {runs.length > 0 && (
-                        <RunningHistoryTable entries={runs} onDelete={handleDelete} />
-                    )}
-
                     <div className={styles.centeredButtonWrapper}>
                         <button onClick={handleAddClick}>Add New Run</button>
                     </div>
+
+                    {completedRuns.length > 0 && (
+                        <>
+                            <h2>Completed runs</h2>
+                            <CompletedRunsTable entries={completedRuns} onDelete={handleDelete} />
+                        </>
+                    )}
+
+                    {upcomingRuns.length > 0 && (
+                        <>
+                            <h2>Upcoming runs</h2>
+                            <UpcomingRunsTable entries={upcomingRuns} onDelete={handleDelete} />
+                        </>
+                    )}
 
                     {showAddRunModal && (
                         <div className={styles.modalBackdrop}>

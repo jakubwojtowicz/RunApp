@@ -1,0 +1,83 @@
+﻿.runTable {
+    margin: 30px auto 0 auto;
+    width: 80%;
+    border-collapse: collapse;
+    margin-top: 30px;
+    font-family: Arial, sans-serif;
+}
+
+    .runTable th,
+    .runTable td {
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    .runTable th {
+        background-color: #0078d4;
+        color: white;
+        font-weight: 700;
+    }
+
+    .runTable tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .runTable tr:hover {
+        background-color: #d0e7ff;
+    }
+
+.actionButton {
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    width: 120px;
+}
+
+.remove {
+    background-color: #e74c3c;
+}
+
+    .remove:hover {
+        background-color: #8B0000;
+    }
+
+.complete {
+    background-color: #008000;
+}
+
+    .complete:hover {
+        background-color: #023020;
+    }
+
+.pagination {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+    .pagination button {
+        padding: 0.5rem 1rem;
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .pagination button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+.actionsCell {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}

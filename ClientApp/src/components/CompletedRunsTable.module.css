@@ -63,3 +63,10 @@
             background-color: #aaa;
             cursor: not-allowed;
         }
+
+
+.actionsCell {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}

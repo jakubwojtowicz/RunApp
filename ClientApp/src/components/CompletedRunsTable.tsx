@@ -1,15 +1,15 @@
 ﻿import React, { useState } from 'react';
 import { RunDto } from '../types';
-import styles from './RunningHistoryTable.module.css';
+import styles from './CompletedRunsTable.module.css';
 
-interface RunningHistoryTableProps {
+interface CompletedRunsTableProps {
     entries: RunDto[];
     onDelete: (index: number) => void;
 }
 
 const ITEMS_PER_PAGE = 5;
 
-const RunningHistoryTable: React.FC<RunningHistoryTableProps> = ({ entries, onDelete }) => {
+const CompletedRunsTable: React.FC<CompletedRunsTableProps> = ({ entries, onDelete }) => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const sortedEntries = [...entries].sort(
@@ -58,7 +58,7 @@ const RunningHistoryTable: React.FC<RunningHistoryTableProps> = ({ entries, onDe
                             <td>{entry.distanceKm.toFixed(2)}</td>
                             <td>{entry.duration}</td>
                             <td>{entry.description}</td>
-                            <td>
+                            <td className={styles.actionsCell}>
                                 <button
                                     onClick={() => onDelete(entry.id)}
                                     className={styles.actionButton}
@@ -84,4 +84,4 @@ const RunningHistoryTable: React.FC<RunningHistoryTableProps> = ({ entries, onDe
     );
 };
 
-export default RunningHistoryTable;
+export default CompletedRunsTable;
