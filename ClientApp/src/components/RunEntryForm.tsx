@@ -12,7 +12,7 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
     const [place, setPlace] = useState<'Outdoor' | 'Treadmill'>('Treadmill');
     const [weekNumber, setWeekNumber] = useState<number | ''>('');
     const [trainingNumberInWeek, setTrainingNumberInWeek] = useState<number | ''>('');
-    const [distanceKm, setDistanceKm] = useState<number | ''>('');
+    const [distanceKm, setDistanceKm] = useState<number | null>(null);
     const [duration, setDuration] = useState('');
     const [description, setDescription] = useState('');
     const [isCompleted, setIsCompleted] = useState(false);
@@ -21,7 +21,7 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!date || !distanceKm || !duration) {
+        if (!date || !description) {
             setMessage('Please fill in required fields');
             return;
         }
@@ -29,8 +29,8 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
         const entry: RunCreateDto = {
             date,
             place,
-            distanceKm: typeof distanceKm === 'number' ? distanceKm : parseFloat(distanceKm),
-            duration,
+            distanceKm: distanceKm,
+            duration: duration === '' ? null : duration,
             description,
             weekNumber: weekNumber === '' ? 0 : weekNumber,
             trainingNumberInWeek: trainingNumberInWeek === '' ? 0 : trainingNumberInWeek,
@@ -43,7 +43,7 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
         setDate('');
         setWeekNumber('');
         setTrainingNumberInWeek('');
-        setDistanceKm('');
+        setDistanceKm(null);
         setDuration('');
         setDescription('');
         setPlace('Treadmill');
@@ -99,12 +99,11 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
                 <input
                     type="number"
                     step="0.01"
-                    value={distanceKm}
+                    value={distanceKm !== null ? distanceKm : ''}
                     onChange={e => {
-                        const val = e.target.value.replace(',', '.');
-                        setDistanceKm(val === '' ? '' : parseFloat(val));
+                        const val = e.target.value;
+                        setDistanceKm(val === '' ? null : parseFloat(val));
                     }}
-                    required
                     className={styles.input}
                 />
             </label>
@@ -115,7 +114,6 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
                     type="text"
                     value={duration}
                     onChange={e => setDuration(e.target.value)}
-                    required
                     className={styles.input}
                     placeholder="HH:MM:SS"
                 />

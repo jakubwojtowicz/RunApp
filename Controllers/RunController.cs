@@ -40,9 +40,9 @@ namespace RunApp.Controllers
             {
                 Date = dto.Date,
                 Place = dto.Place,
-                DistanceKm = dto.DistanceKm,
-                Duration = dto.Duration,
-                Description = dto.Description,
+                DistanceKm = dto.DistanceKm ?? 0,
+                Duration = dto.Duration ?? System.TimeSpan.Zero,
+                Description = dto.Description ?? "",
                 WeekNumber = dto.WeekNumber,
                 TrainingNumberInWeek = dto.TrainingNumberInWeek,
                 IsCompleted = dto.IsCompleted,
@@ -67,6 +67,30 @@ namespace RunApp.Controllers
             };
 
             return CreatedAtAction(nameof(GetById), new { id = run.Id }, runDto);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] RunUpdateDto dto)
+        {
+            var run = await _context.Runs.FindAsync(dto.Id);
+
+            if (run == null)
+            {
+                return NotFound($"Run with ID {dto.Id} not found.");
+            }
+
+            run.Date = dto.Date;
+            run.Place = dto.Place;
+            run.DistanceKm = dto.DistanceKm;
+            run.Duration = dto.Duration;
+            run.Description = dto.Description;
+            run.WeekNumber = dto.WeekNumber;
+            run.TrainingNumberInWeek = dto.TrainingNumberInWeek;
+            run.IsCompleted = dto.IsCompleted;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(run);
         }
 
         [HttpGet]

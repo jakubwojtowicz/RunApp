@@ -2,7 +2,7 @@
 import RunEntryForm from '../components/RunEntryForm';
 import CompletedRunsTable from '../components/CompletedRunsTable';
 import TrainingPlanForm from '../components/TrainingPlanForm';
-import { RunCreateDto, RunDto, TrainingPlanCreateDto, TrainingPlanDto } from '../types';
+import { RunCreateDto, RunDto, RunUpdateDto, TrainingPlanCreateDto, TrainingPlanDto } from '../types';
 import styles from './TrainingPlanPage.module.css';
 import UpcomingRunsTable from '../components/UpcomingRunsTable';
 
@@ -118,6 +118,44 @@ const TrainingPlan = () => {
         }
     };
 
+    const handleCompleteRun = async (index: number, distanceKm: number, duration: string) => {
+
+        const runToUpdate = upcomingRuns.find(r => r.id === index);
+
+        if (runToUpdate !== undefined) {
+            const updateEntry: RunUpdateDto = {
+                id: runToUpdate.id,
+                date: runToUpdate.date,
+                place: runToUpdate.place,
+                distanceKm: distanceKm,
+                duration: duration,
+                description: runToUpdate.description,
+                weekNumber: runToUpdate.weekNumber,
+                trainingNumberInWeek: runToUpdate.trainingNumberInWeek,
+                isCompleted: true,
+            };
+            try {
+                const response = await fetch('https://localhost:7125/api/run', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateEntry)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save new run entry');
+                }
+
+                fetchRuns();
+
+            } catch (error) {
+                console.error(error);
+            }
+        }
+         else {
+            console.warn(`Run with ID ${index} not found in upcomingRuns.`);
+        }
+    }
+
     useEffect(() => {
         fetchTrainingPlan();
     }, []);
@@ -155,7 +193,7 @@ const TrainingPlan = () => {
                     {upcomingRuns.length > 0 && (
                         <>
                             <h2>Upcoming runs</h2>
-                            <UpcomingRunsTable entries={upcomingRuns} onDelete={handleDelete} />
+                            <UpcomingRunsTable entries={upcomingRuns} onDelete={handleDelete} onCompleteRun={handleCompleteRun} />
                         </>
                     )}
 

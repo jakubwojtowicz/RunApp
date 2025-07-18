@@ -5,6 +5,7 @@ namespace RunApp.DTO.Run
 {
     public class RunUpdateDto
     {
+        public int Id { get; set; }
         public DateOnly Date { get; set; }
         public string Place { get; set; }
         public double DistanceKm { get; set; }

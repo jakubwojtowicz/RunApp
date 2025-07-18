@@ -14,13 +14,25 @@
 export interface RunCreateDto {
     date: string;
     place: 'Outdoor' | 'Treadmill';
+    distanceKm: number | null;
+    duration: string | null;
+    description: string;
+    weekNumber: number;
+    trainingNumberInWeek: number;
+    isCompleted: boolean;
+    trainingPlanId: number; 
+}
+
+export interface RunUpdateDto {
+    id: number,
+    date: string;
+    place: 'Outdoor' | 'Treadmill';
     distanceKm: number;
     duration: string;
     description: string;
     weekNumber: number;
     trainingNumberInWeek: number;
     isCompleted: boolean;
-    trainingPlanId: number; 
 }
 
 export interface TrainingPlanDto {

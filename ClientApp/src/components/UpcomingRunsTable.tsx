@@ -5,12 +5,17 @@ import styles from './UpcomingRunsTable.module.css';
 interface UpcomingRunsTableProps {
     entries: RunDto[];
     onDelete: (index: number) => void;
+    onCompleteRun: (index: number, distanceKm: number, duration: string) => void;
 }
 
 const ITEMS_PER_PAGE = 5;
 
-const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete }) => {
+const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete, onCompleteRun }) => {
     const [currentPage, setCurrentPage] = useState(1);
+    const [currentRunId, setCurrentRunId] = useState(0);
+    const [showCompleteRunModal, setShowCompleteRunModal] = useState(false);
+    const [distanceKm, setDistanceKm] = useState<number | ''>('');
+    const [duration, setDuration] = useState('');
 
     const sortedEntries = [...entries].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -33,9 +38,17 @@ const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete
         }
     };
 
-    const onComplete = (entryId: number) => {
+    const onComplete = (runId: number) => {
+        setShowCompleteRunModal(true);
+        setCurrentRunId(runId);
+    }
 
-    };
+    const handleCloseModal = () => setShowCompleteRunModal(false);
+
+    const handleCompleteRun = () => {
+        onCompleteRun(currentRunId, typeof distanceKm === 'number' ? distanceKm : parseFloat(distanceKm), duration);
+        setShowCompleteRunModal(false);
+    }
 
     return (
         <>
@@ -86,6 +99,55 @@ const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete
                     Next
                 </button>
             </div>
+
+            {showCompleteRunModal && (
+                <div className={styles.modalBackdrop}>
+                    <div className={styles.modalContent}>
+                        <form onSubmit={handleCompleteRun} className={styles.form}>
+
+                            <label className={styles.label}>
+                                Distance (km):
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={distanceKm}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(',', '.');
+                                        setDistanceKm(val === '' ? '' : parseFloat(val));
+                                    }}
+                                    required
+                                    className={styles.input}
+                                />
+                            </label>
+
+                            <label className={styles.label}>
+                                Duration (e.g. 00:25:30):
+                                <input
+                                    type="text"
+                                    value={duration}
+                                    onChange={e => setDuration(e.target.value)}
+                                    required
+                                    className={styles.input}
+                                    placeholder="HH:MM:SS"
+                                />
+                            </label>
+
+                            <div className={styles.buttonsContainer}>
+
+                                <button type="submit" className={styles.button}>
+                                    Save
+                                </button>
+
+                                <button type="button" className={styles.button} onClick={handleCloseModal}>
+                                    Cancel
+                                </button>
+
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
