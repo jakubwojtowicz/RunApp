@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using RunApp.Models;
+using RunApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<RunDbContext>();
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+builder.Services.AddScoped<IRunService, RunService>();
+builder.Services.AddScoped<ITrainingPlanService, TrainingPlanService>();
 
 var app = builder.Build();
 

@@ -7,98 +7,64 @@ using RunApp.Models;
 using System;
 using System.Numerics;
 using System.Text;
+using RunApp.Services;
 
 namespace RunApp.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/training-plan")]
     public class TrainingPlanController : ControllerBase
     {
-        private readonly RunDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly ITrainingPlanService _trainingPlanService;
 
-        public TrainingPlanController(RunDbContext context, IMapper mapper)
+        public TrainingPlanController(ITrainingPlanService trainingPlanService)
         {
-            _context = context;
-            _mapper = mapper;
+            _trainingPlanService = trainingPlanService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TrainingPlanDto>>> GetAll()
+        public ActionResult<IEnumerable<TrainingPlanDto>> GetAll()
         {
-            var plans = await _context.TrainingPlans
-                .Include(p => p.Runs)
-                .ToListAsync();
+            var plans = _trainingPlanService.GetAll();
 
-            var plansDto = _mapper.Map<List<TrainingPlanDto>>(plans);
-
-            return Ok(plansDto);
+            return Ok(plans);
         }
 
         [HttpGet("current")]
-        public async Task<ActionResult<TrainingPlanDto>> GetCurrent()
+        public ActionResult<TrainingPlanDto> GetCurrent()
         {
-            var plan = await _context.TrainingPlans
-                .Include(p => p.Runs)
-                .Where(p => p.IsCurrent == true)
-                .FirstOrDefaultAsync();
+            var plan = _trainingPlanService.GetCurrent();
 
-            if (plan == null)
-                return NotFound();
-
-            var trainingPlanDto = _mapper.Map<TrainingPlanDto>(plan);
-
-            return Ok(trainingPlanDto);
+            return Ok(plan);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public ActionResult<TrainingPlanDto> GetById(int id)
         {
-            var plan = await _context.TrainingPlans
-                .FirstOrDefaultAsync(p => p.Id == id);
+            var plan = _trainingPlanService.GetById(id);
 
-            if (plan == null)
-                return NotFound();
-
-            var trainingPlanDto = _mapper.Map<TrainingPlanDto>(plan);
-
-            return Ok(trainingPlanDto);
+            return Ok(plan);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] TrainingPlanCreateDto planDto)
+        public ActionResult Add([FromBody] TrainingPlanCreateDto planDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var current = await _context.TrainingPlans
-                .FirstOrDefaultAsync(p => p.IsCurrent == true);
+            var id = _trainingPlanService.Add(planDto);
 
-            if(current != null && planDto.IsCurrent == true)
-            {
-                return BadRequest("Cannot create second current training plan.");
-            }
-
-            var plan = _mapper.Map<TrainingPlan>(planDto);
-
-            _context.TrainingPlans.Add(plan);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction($"/api/trainingplan/{plan.Id}", null);
+            return Created($"/api/training-plan/{id}", null);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public ActionResult Delete(int id)
         {
-            var plan = await _context.TrainingPlans.FindAsync(id);
-            if (plan == null)
-                return NotFound();
+            var isDeleted = _trainingPlanService.Delete(id);    
 
-            _context.TrainingPlans.Remove(plan);
-            await _context.SaveChangesAsync();
-            return Ok();
+            return isDeleted ? Ok() : NotFound();
         }
     }
 }

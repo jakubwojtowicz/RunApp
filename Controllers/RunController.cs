@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RunApp.DTO.Run;
 using RunApp.Models;
+using RunApp.Services;
 
 namespace RunApp.Controllers
 {
@@ -10,160 +11,85 @@ namespace RunApp.Controllers
     [Route("api/[controller]")]
     public class RunController : ControllerBase
     {
-        private readonly RunDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IRunService _runService;
 
-        public RunController(RunDbContext context, IMapper mapper)
+        public RunController(IRunService runService)
         {
-            _context = context;
-            _mapper = mapper;
+            _runService = runService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RunDto>>> GetAll()
+        public ActionResult<IEnumerable<RunDto>> GetAll()
         {
-            var runs = await _context
-                .Runs
-                .Include(r => r.TrainingPlan)
-                .ToListAsync();
+            var runs = _runService.GetAll();
 
-            var runsDto = _mapper.Map<List<RunDto>>(runs);
-
-            return Ok(runsDto);
+            return Ok(runs);
         }
 
         [HttpGet("by-plan/{trainingPlanId}")]
-        public async Task<ActionResult<IEnumerable<RunDto>>> GetByTrainingPlan(int trainingPlanId)
+        public ActionResult<IEnumerable<RunDto>> GetByTrainingPlan(int trainingPlanId)
         {
-            var runs = await _context.Runs
-                .Where(r => r.TrainingPlanId == trainingPlanId)
-                .Include(r => r.TrainingPlan)
-                .ToListAsync();
+            var runs = _runService.GetByTrainingPlan(trainingPlanId);
 
-            var runsDto = _mapper.Map<List<RunDto>>(runs);
-
-            return Ok(runsDto);
+            return Ok(runs);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<RunDto>> GetById(int id)
+        public ActionResult<RunDto> GetById(int id)
         {
-            var run = await _context
-                .Runs
-                .Include(r => r.TrainingPlan)
-                .FirstOrDefaultAsync(r => r.Id == id);
+            var run = _runService.GetById(id);
 
-            if (run == null)
-                return NotFound();
-
-            var runDto = _mapper.Map<RunDto>(run);
-
-            return Ok(runDto);
+            return Ok(run);
         }
 
         [HttpGet("latest")]
-        public async Task<IActionResult> GetLatestRun()
+        public ActionResult<RunDto> GetLatestRun()
         {
-            var latestRun = await _context.Runs
-                .OrderByDescending(r => r.Date)
-                .FirstOrDefaultAsync();
+            var latestRun = _runService.GetLatestRun();
 
-            if (latestRun == null)
-                return NotFound("No runs found.");
-
-            var runDto = _mapper.Map<RunDto>(latestRun);
-
-            return Ok(runDto);
+            return Ok(latestRun);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] RunCreateDto dto)
+        public ActionResult Add([FromBody] RunCreateDto dto)
         {
             if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var plan = await _context.TrainingPlans
-                .FirstOrDefaultAsync(p => p.Id == dto.TrainingPlanId);
 
-            if (plan == null)
-                return NotFound($"Training plan with the id: {dto.TrainingPlanId} doesn't exist in the database.");
+            var id = _runService.Add(dto);
 
-            var run = _mapper.Map<Run>(dto);
-
-            _context.Runs.Add(run);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction($"/api/run/{run.Id}", null);
+            return Created($"/api/run/{id}", null);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] RunUpdateDto dto)
+        public ActionResult Update([FromBody] RunUpdateDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var run = await _context.Runs.FindAsync(dto.Id);
+            var isUpdated = _runService.Update(dto);
 
-            if (run == null)
-            {
-                return NotFound($"Run with ID {dto.Id} not found.");
-            }
-
-            run.Date = dto.Date;
-            run.Place = dto.Place;
-            run.DistanceKm = dto.DistanceKm;
-            run.Duration = dto.Duration;
-            run.Description = dto.Description;
-            run.WeekNumber = dto.WeekNumber;
-            run.TrainingNumberInWeek = dto.TrainingNumberInWeek;
-            run.IsCompleted = dto.IsCompleted;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(run);
+            return isUpdated ? Ok() : NotFound();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public ActionResult Delete(int id)
         {
-            var run = await _context.Runs.FindAsync(id);
-            if (run == null)
-                return NotFound("Run entry not found.");
+            var isDeleted = _runService.Delete(id);
 
-            _context.Runs.Remove(run);
-            await _context.SaveChangesAsync();
-
-            return Ok();
+            return isDeleted ? NoContent() : NotFound();
         }
 
         [HttpGet("summary")]
-        public async Task<IActionResult> GetSummary()
+        public ActionResult<object> GetSummary()
         {
-            var runs = await _context.Runs
-                .Where(r => r.IsCompleted) 
-                .ToListAsync();
+            var summary = _runService.GetSummary();
 
-            if(runs.Count == 0)
-            {
-                return NotFound("Completed runs not found in the database.");
-            }
-
-            var totalDistance = runs.Sum(r => r.DistanceKm);
-            var totalDuration = runs.Aggregate(TimeSpan.Zero, (acc, r) => (TimeSpan)(acc + r.Duration));
-
-            TimeSpan avgPace = totalDistance > 0
-                ? TimeSpan.FromSeconds((double)(totalDuration.TotalSeconds / totalDistance))
-                : TimeSpan.Zero;
-
-            return Ok(new
-            {
-                totalDistance,
-                totalDuration = totalDuration.ToString(@"hh\:mm\:ss"),
-                avgPace = avgPace.ToString(@"mm\:ss")
-            });
+            return Ok(summary);
         }
 
     }
