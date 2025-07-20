@@ -79,6 +79,10 @@ namespace RunApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] RunCreateDto dto)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var plan = await _context.TrainingPlans
                 .FirstOrDefaultAsync(p => p.Id == dto.TrainingPlanId);
 
@@ -96,6 +100,11 @@ namespace RunApp.Controllers
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] RunUpdateDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var run = await _context.Runs.FindAsync(dto.Id);
 
             if (run == null)

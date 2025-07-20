@@ -68,6 +68,11 @@ namespace RunApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] TrainingPlanCreateDto planDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var current = await _context.TrainingPlans
                 .FirstOrDefaultAsync(p => p.IsCurrent == true);
 
