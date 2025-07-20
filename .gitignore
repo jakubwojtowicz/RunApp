@@ -230,3 +230,11 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+# SQLite db files
+runapp.db
+runapp.db-shm
+runapp.db-wal
+
+# Migrations folder
+Migrations/
