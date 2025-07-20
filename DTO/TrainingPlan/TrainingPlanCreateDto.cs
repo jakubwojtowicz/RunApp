@@ -1,6 +1,6 @@
 ﻿namespace RunApp.DTO.TrainingPlan
 {
-    public class TrainingPlanUpdateDto
+    public class TrainingPlanCreateDto
     {
         public string Name { get; set; }
         public string Description { get; set; }

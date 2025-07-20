@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RunApp.DTO.Run;
 using RunApp.DTO.TrainingPlan;
@@ -14,46 +15,28 @@ namespace RunApp.Controllers
     public class TrainingPlanController : ControllerBase
     {
         private readonly RunDbContext _context;
+        private readonly IMapper _mapper;
 
-        public TrainingPlanController(RunDbContext context)
+        public TrainingPlanController(RunDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<TrainingPlanDto>>> GetAll()
         {
             var plans = await _context.TrainingPlans
                 .Include(p => p.Runs)
                 .ToListAsync();
 
-            var result = plans.Select(p => new TrainingPlanDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                StartDate = p.StartDate,
-                EndDate = p.EndDate,
-                Runs = p.Runs.Select(r => new RunDto
-                {
-                    Id = r.Id,
-                    Date = r.Date,
-                    Place = r.Place,
-                    DistanceKm = r.DistanceKm,
-                    Duration = r.Duration,
-                    Description = r.Description,
-                    WeekNumber = r.WeekNumber,
-                    TrainingNumberInWeek = r.TrainingNumberInWeek,
-                    IsCompleted = r.IsCompleted,
-                    TrainingPlanId = r.TrainingPlanId
-                }).ToList()
-            }).ToList();
+            var plansDto = _mapper.Map<List<TrainingPlanDto>>(plans);
 
-            return Ok(result);
+            return Ok(plansDto);
         }
 
         [HttpGet("current")]
-        public async Task<IActionResult> GetCurrent()
+        public async Task<ActionResult<TrainingPlanDto>> GetCurrent()
         {
             var plan = await _context.TrainingPlans
                 .Include(p => p.Runs)
@@ -63,30 +46,9 @@ namespace RunApp.Controllers
             if (plan == null)
                 return NotFound();
 
-            var result = new TrainingPlanDto
-            {
-                Id = plan.Id,
-                Name = plan.Name,
-                Description = plan.Description,
-                StartDate = plan.StartDate,
-                EndDate = plan.EndDate,
-                Runs = plan.Runs.Select(r => new RunDto
-                {
-                    Id = r.Id,
-                    Date = r.Date,
-                    Place = r.Place,
-                    DistanceKm = r.DistanceKm,
-                    Duration = r.Duration,
-                    Description = r.Description,
-                    WeekNumber = r.WeekNumber,
-                    TrainingNumberInWeek = r.TrainingNumberInWeek,
-                    IsCompleted = r.IsCompleted,
-                    TrainingPlanId = r.TrainingPlanId
-                }).ToList(),
-                IsCurrent = plan.IsCurrent
-            };
+            var trainingPlanDto = _mapper.Map<TrainingPlanDto>(plan);
 
-            return Ok(result);
+            return Ok(trainingPlanDto);
         }
 
         [HttpGet("{id}")]
@@ -98,33 +60,13 @@ namespace RunApp.Controllers
             if (plan == null)
                 return NotFound();
 
-            var result = new TrainingPlanDto 
-            {
-                Id = plan.Id,
-                Name = plan.Name,
-                Description = plan.Description,
-                StartDate = plan.StartDate,
-                EndDate = plan.EndDate,
-                Runs = plan.Runs.Select(r => new RunDto
-                {
-                    Id = r.Id,
-                    Date = r.Date,
-                    Place = r.Place,
-                    DistanceKm = r.DistanceKm,
-                    Duration = r.Duration,
-                    Description = r.Description,
-                    WeekNumber = r.WeekNumber,
-                    TrainingNumberInWeek = r.TrainingNumberInWeek,
-                    IsCompleted = r.IsCompleted,
-                    TrainingPlanId = r.TrainingPlanId
-                }).ToList()
-            };
+            var trainingPlanDto = _mapper.Map<TrainingPlanDto>(plan);
 
-            return Ok(result);
+            return Ok(trainingPlanDto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] TrainingPlanUpdateDto planDto)
+        public async Task<IActionResult> Add([FromBody] TrainingPlanCreateDto planDto)
         {
             var current = await _context.TrainingPlans
                 .FirstOrDefaultAsync(p => p.IsCurrent == true);
@@ -134,18 +76,12 @@ namespace RunApp.Controllers
                 return BadRequest("Cannot create second current training plan.");
             }
 
-            var plan = new TrainingPlan
-            {
-                Name = planDto.Name,
-                Description = planDto.Description,
-                StartDate = planDto.StartDate,
-                EndDate = planDto.EndDate,
-                IsCurrent = planDto.IsCurrent,
-            };
+            var plan = _mapper.Map<TrainingPlan>(planDto);
+
             _context.TrainingPlans.Add(plan);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = plan.Id }, plan);
+            return CreatedAtAction($"/api/trainingplan/{plan.Id}", null);
         }
 
         [HttpDelete("{id}")]

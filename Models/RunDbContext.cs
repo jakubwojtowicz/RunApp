@@ -21,7 +21,7 @@ namespace RunApp.Models
                 .IsRequired();
             modelBuilder.Entity<Run>()
                 .Property(r => r.Place)
-                .HasMaxLength(150);
+                .HasMaxLength(100);
             modelBuilder.Entity<Run>()
                 .Property(r => r.Date)
                 .HasConversion(
@@ -32,6 +32,10 @@ namespace RunApp.Models
                 .Property(r => r.Name)
                 .IsRequired()
                 .HasMaxLength(50);
+            modelBuilder.Entity<TrainingPlan>()
+                .Property(r => r.Description)
+                .IsRequired()
+                .HasMaxLength(200);
             modelBuilder.Entity<TrainingPlan>()
                 .Property(r => r.StartDate)
                 .HasConversion(
