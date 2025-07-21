@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RunApp.DTO.Run;
 using RunApp.Models;
 
@@ -22,11 +23,13 @@ namespace RunApp.Services
     {
         private readonly RunDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<RunService> _logger;
 
-        public RunService(RunDbContext dbContext, IMapper mapper)
+        public RunService(RunDbContext dbContext, IMapper mapper, ILogger<RunService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public RunDto GetById(int id)
@@ -119,6 +122,8 @@ namespace RunApp.Services
 
         public bool Delete(int id)
         {
+            _logger.LogWarning($"Run with id {id} DELETE action invoked.");
+
             var run = _dbContext.Runs.Find(id);
 
             if (run == null)

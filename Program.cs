@@ -1,9 +1,14 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using NLog.Web;
 using RunApp.Models;
 using RunApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+builder.Host.UseNLog();
 
 // Add services to the container.
 

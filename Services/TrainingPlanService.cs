@@ -19,11 +19,13 @@ namespace RunApp.Services
     {
         private readonly RunDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<TrainingPlanService> _logger;
 
-        public TrainingPlanService(RunDbContext dbContext, IMapper mapper)
+        public TrainingPlanService(RunDbContext dbContext, IMapper mapper, ILogger<TrainingPlanService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public IEnumerable<TrainingPlanDto> GetAll()
@@ -82,6 +84,8 @@ namespace RunApp.Services
 
         public bool Delete(int id)
         {
+            _logger.LogWarning($"TrainingPlan with id {id} DELETE action invoked.");
+
             var plan = _dbContext.TrainingPlans.Find(id);
             if (plan == null) return false;
 
