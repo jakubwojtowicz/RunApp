@@ -1,18 +1,96 @@
 ﻿.homeContainer {
-    padding: 20px;
+    padding: 2rem;
+    max-width: 960px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h1 {
     text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+}
+
+.summaryCard,
+.latestRunCard {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+    padding: 1.8rem 2rem;
+    margin-bottom: 2rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    animation: fadeInCard 0.4s ease-in-out both;
+}
+
+@keyframes fadeInCard {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.summaryCard:hover,
+.latestRunCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
 }
 
 .summaryTitle {
-    margin-bottom: 20px;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid #3498db;
+    padding-left: 1rem;
+    color: #34495e;
 }
 
-.latestRunCard, .summaryCard {
-    margin: 45px auto;
-    padding: 40px;
-    max-width: 800px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    text-align: left;
+p {
+    font-size: 1rem;
+    margin: 0.4rem 0;
+}
+
+strong {
+    color: #2c3e50;
+}
+
+@media (max-width: 600px) {
+    .homeContainer {
+        padding: 1rem;
+    }
+
+    .summaryCard,
+    .latestRunCard {
+        padding: 1.2rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .summaryTitle {
+        font-size: 1.3rem;
+    }
+
+    p {
+        font-size: 0.95rem;
+    }
 }

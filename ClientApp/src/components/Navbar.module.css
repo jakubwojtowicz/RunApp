@@ -1,20 +1,47 @@
 ﻿.navbar {
-    background-color: #333;
-    padding: 2rem;
-    font-size: 25px;
+    background-color: #ffffff;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .navList {
-    display: flex;
     list-style: none;
-    gap: 1rem;
+    display: flex;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
 }
 
     .navList li a {
-        color: white;
         text-decoration: none;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #343a40;
+        position: relative;
+        padding: 0.3rem 0;
+        transition: color 0.3s ease;
     }
 
-        .navList li a:hover {
-            text-decoration: underline;
+        .navList li a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 2px;
+            width: 100%;
+            background-color: #228be6;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
         }
+
+        .navList li a:hover {
+            color: #228be6;
+        }
+
+            .navList li a:hover::after {
+                transform: scaleX(1);
+            }
