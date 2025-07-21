@@ -49,11 +49,6 @@ namespace RunApp.Controllers
         [HttpPost]
         public ActionResult Add([FromBody] TrainingPlanCreateDto planDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var id = _trainingPlanService.Add(planDto);
 
             return Created($"/api/training-plan/{id}", null);
@@ -62,9 +57,9 @@ namespace RunApp.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            var isDeleted = _trainingPlanService.Delete(id);    
+            _trainingPlanService.Delete(id);    
 
-            return isDeleted ? Ok() : NotFound();
+            return Ok();
         }
     }
 }

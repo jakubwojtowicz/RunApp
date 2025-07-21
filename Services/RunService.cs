@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RunApp.DTO.Run;
+using RunApp.Exceptions;
 using RunApp.Models;
 
 namespace RunApp.Services
@@ -14,8 +15,8 @@ namespace RunApp.Services
         IEnumerable<RunDto> GetAll();
         RunDto GetLatestRun();
         int Add(RunCreateDto dto);
-        bool Update(RunUpdateDto dto);
-        bool Delete(int id);
+        void Update(RunUpdateDto dto);
+        void Delete(int id);
         object GetSummary();
     }
 
@@ -39,7 +40,8 @@ namespace RunApp.Services
                 .Include(r => r.TrainingPlan)
                 .FirstOrDefault(r => r.Id == id);
 
-            if (run is null) return null;
+            if (run is null) 
+                throw new NotFoundException("Run not found."); 
                
             var runDto = _mapper.Map<RunDto>(run);
 
@@ -53,6 +55,9 @@ namespace RunApp.Services
                 .Include(r => r.TrainingPlan)
                 .ToList();
 
+            if (runs.Count == 0) 
+                throw new NotFoundException("Runs not found.");
+
             var runsDto = _mapper.Map<List<RunDto>>(runs);
 
             return runsDto;
@@ -65,6 +70,9 @@ namespace RunApp.Services
                 .Include(r => r.TrainingPlan)
                 .ToList();
 
+            if (runs.Count == 0) 
+                throw new NotFoundException("Runs not found.");
+
             var runsDto = _mapper.Map<List<RunDto>>(runs);
 
             return runsDto;
@@ -76,7 +84,8 @@ namespace RunApp.Services
                 .OrderByDescending(r => r.Date)
                 .FirstOrDefault();
 
-            if (latestRun == null) return null;
+            if (latestRun is null) 
+                throw new NotFoundException("Run not found.");
 
             var runDto = _mapper.Map<RunDto>(latestRun);
 
@@ -88,8 +97,8 @@ namespace RunApp.Services
             var plan = _dbContext.TrainingPlans
                 .FirstOrDefault(p => p.Id == dto.TrainingPlanId);
 
-            if (plan == null)
-                throw new Exception($"Training plan with the id: {dto.TrainingPlanId} doesn't exist in the database.");
+            if (plan is null)
+                throw new BadRequestException($"Training plan with the id: {dto.TrainingPlanId} doesn't exist in the database.");
 
             var run = _mapper.Map<Run>(dto);
             _dbContext.Runs.Add(run);
@@ -98,14 +107,13 @@ namespace RunApp.Services
             return run.Id;
         }
 
-        public bool Update(RunUpdateDto dto)
+        public void Update(RunUpdateDto dto)
         {
             var run = _dbContext.Runs.Find(dto.Id);
 
-            if (run == null)
-            {
-                return false;
-            }
+            if (run is null)
+                throw new NotFoundException("Run not found.");
+            
 
             run.Date = dto.Date;
             run.Place = dto.Place;
@@ -117,22 +125,19 @@ namespace RunApp.Services
             run.IsCompleted = dto.IsCompleted;
 
             _dbContext.SaveChanges();
-            return true;
         }
 
-        public bool Delete(int id)
+        public void Delete(int id)
         {
             _logger.LogWarning($"Run with id {id} DELETE action invoked.");
 
             var run = _dbContext.Runs.Find(id);
 
-            if (run == null)
-                return false;
+            if (run is null)
+                throw new NotFoundException("Run not found.");
 
             _dbContext.Runs.Remove(run);
             _dbContext.SaveChanges();
-
-            return true;
         }
 
         public object GetSummary()
@@ -142,9 +147,7 @@ namespace RunApp.Services
                 .ToList();
 
             if (runs.Count == 0)
-            {
-                throw new Exception($"Completed runs not found in the database.");
-            }
+                throw new NotFoundException("Completed runs not found.");
 
             var totalDistance = runs.Sum(r => r.DistanceKm);
             var totalDuration = runs.Aggregate(TimeSpan.Zero, (acc, r) => (TimeSpan)(acc + r.Duration));

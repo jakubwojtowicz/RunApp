@@ -12,7 +12,6 @@ namespace RunApp
             CreateMap<Run, RunDto>();
             CreateMap<TrainingPlan, TrainingPlanDto>();
             CreateMap<TrainingPlanCreateDto, TrainingPlan>();
-
             CreateMap<RunCreateDto, Run>();
         }
     }

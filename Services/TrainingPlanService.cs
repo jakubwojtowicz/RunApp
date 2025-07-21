@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RunApp.DTO.TrainingPlan;
+using RunApp.Exceptions;
 using RunApp.Models;
 
 namespace RunApp.Services
@@ -12,7 +13,7 @@ namespace RunApp.Services
         TrainingPlanDto GetCurrent();
         TrainingPlanDto GetById(int id);
         int Add(TrainingPlanCreateDto planDto);
-        bool Delete(int id);
+        void Delete(int id);
     }
 
     public class TrainingPlanService : ITrainingPlanService
@@ -34,6 +35,8 @@ namespace RunApp.Services
                 .Include(p => p.Runs)
                 .ToList();
 
+            if (plans.Count == 0) throw new NotFoundException("TrainingPlans not found.");
+
             var plansDto = _mapper.Map<List<TrainingPlanDto>>(plans);
 
             return plansDto;
@@ -45,7 +48,7 @@ namespace RunApp.Services
                 .Include(p => p.Runs)
                 .FirstOrDefault(p => p.IsCurrent == true);
 
-            if (plan is null) return null;
+            if (plan is null) throw new NotFoundException("Current training plan doesn't exist.");
 
             var trainingPlanDto = _mapper.Map<TrainingPlanDto>(plan);
 
@@ -57,7 +60,7 @@ namespace RunApp.Services
             var plan = _dbContext.TrainingPlans
                 .FirstOrDefault(p => p.Id == id);
 
-            if (plan is null) return null;
+            if (plan is null) throw new NotFoundException($"Training plan with Id: {id} not found.");
 
             var trainingPlanDto = _mapper.Map<TrainingPlanDto>(plan);
 
@@ -71,7 +74,7 @@ namespace RunApp.Services
 
             if (current != null && planDto.IsCurrent == true)
             {
-                throw new Exception("Cannot create second current training plan.");
+                throw new BadRequestException("Cannot create second current training plan.");
             }
 
             var plan = _mapper.Map<TrainingPlan>(planDto);
@@ -82,16 +85,15 @@ namespace RunApp.Services
             return plan.Id;
         }
 
-        public bool Delete(int id)
+        public void Delete(int id)
         {
             _logger.LogWarning($"TrainingPlan with id {id} DELETE action invoked.");
 
             var plan = _dbContext.TrainingPlans.Find(id);
-            if (plan == null) return false;
+            if (plan is null) throw new NotFoundException($"Training plan with Id: {id} not found.");
 
             _dbContext.TrainingPlans.Remove(plan);
             _dbContext.SaveChangesAsync();
-            return true;
         }
     }
 }

@@ -53,11 +53,6 @@ namespace RunApp.Controllers
         [HttpPost]
         public ActionResult Add([FromBody] RunCreateDto dto)
         {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var id = _runService.Add(dto);
 
             return Created($"/api/run/{id}", null);
@@ -66,22 +61,17 @@ namespace RunApp.Controllers
         [HttpPut]
         public ActionResult Update([FromBody] RunUpdateDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            _runService.Update(dto);
 
-            var isUpdated = _runService.Update(dto);
-
-            return isUpdated ? Ok() : NotFound();
+            return Ok();
         }
 
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            var isDeleted = _runService.Delete(id);
+            _runService.Delete(id);
 
-            return isDeleted ? NoContent() : NotFound();
+            return NoContent();
         }
 
         [HttpGet("summary")]
