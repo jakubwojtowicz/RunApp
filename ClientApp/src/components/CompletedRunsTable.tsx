@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { RunDto } from '../types';
+import { RunDto } from '../api/runApiTypes';
 import styles from './CompletedRunsTable.module.css';
 
 interface CompletedRunsTableProps {

@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { useState } from 'react';
 import styles from './TrainingPlanForm.module.css';
-import { TrainingPlanCreateDto } from '../types';
+import { TrainingPlanCreateDto } from '../api/runApiTypes';
 
 interface TrainingPlanFormProps {
     onSave: (entry: TrainingPlanCreateDto) => void;

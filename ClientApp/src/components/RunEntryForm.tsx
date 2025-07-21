@@ -1,6 +1,6 @@
 ﻿import React, { useState } from 'react';
 import styles from './RunEntryForm.module.css';
-import { RunCreateDto } from '../types';
+import { RunCreateDto } from '../api/runApiTypes';
 
 interface RunEntryFormProps {
     onSave: (entry: RunCreateDto) => void;

@@ -1,232 +1,161 @@
-﻿import React, { useEffect, useState } from 'react';
+﻿// TrainingPlan.tsx
+import React, { useEffect, useState, useCallback } from 'react';
 import RunEntryForm from '../components/RunEntryForm';
 import CompletedRunsTable from '../components/CompletedRunsTable';
 import TrainingPlanForm from '../components/TrainingPlanForm';
-import { RunCreateDto, RunDto, RunUpdateDto, TrainingPlanCreateDto, TrainingPlanDto } from '../types';
-import styles from './TrainingPlanPage.module.css';
 import UpcomingRunsTable from '../components/UpcomingRunsTable';
+import {
+    RunCreateDto, RunDto, RunUpdateDto,
+    TrainingPlanCreateDto, TrainingPlanDto
+} from '../api/runApiTypes';
+import {
+    getCurrentTrainingPlan,
+    createTrainingPlan,
+    getRunsForPlan,
+    createRun,
+    updateRun,
+    deleteRun
+} from '../api/runApiCalls';
+import styles from './TrainingPlanPage.module.css';
 
-const TrainingPlan = () => {
-    const [currentTrainingPlan, setCurrentTrainingPlan] = useState<TrainingPlanDto>();
-    const [hasPlan, setHasPlan] = useState(false);
-    const [showAddRunModal, setShowAddRunModal] = useState(false);
-    const [upcomingRuns, setUpcomingRuns] = useState<RunDto[]>([]);
+const TrainingPlan: React.FC = () => {
+    const [trainingPlan, setTrainingPlan] = useState<TrainingPlanDto>();
     const [completedRuns, setCompletedRuns] = useState<RunDto[]>([]);
+    const [upcomingRuns, setUpcomingRuns] = useState<RunDto[]>([]);
     const [showPlanForm, setShowPlanForm] = useState(false);
+    const [showRunModal, setShowRunModal] = useState(false);
 
-    const handleAddClick = () => setShowAddRunModal(true);
-    const handleCloseModal = () => setShowAddRunModal(false);
-
-    const fetchTrainingPlan = async () => {
+    const fetchTrainingPlan = useCallback(async () => {
         try {
-            const res = await fetch('https://localhost:7125/api/training-plan/current');
+            const data = await getCurrentTrainingPlan();
+            setTrainingPlan(data);
+        } catch (err) {
+            console.error(err);
+            setTrainingPlan(undefined);
+        }
+    }, []);
 
-            if (!res.ok) {
-                setHasPlan(false);
-                throw new Error('Failed to fetch training plan');
-            }
+    const fetchRuns = useCallback(async (planId: number) => {
+        try {
+            const data = await getRunsForPlan(planId);
+            setCompletedRuns(data.filter(r => r.isCompleted));
+            setUpcomingRuns(data.filter(r => !r.isCompleted));
+        } catch (err) {
+            console.error(err);
+        }
+    }, []);
 
-            const data: TrainingPlanDto = await res.json();
-
-            setCurrentTrainingPlan(data);
-            setHasPlan(true);
-
-        } catch (error) {
-            console.error("Error fetching training plan: ", error);
+    const handlePlanCreate = async (dto: TrainingPlanCreateDto) => {
+        try {
+            await createTrainingPlan(dto);
+            await fetchTrainingPlan();
+        } catch (err) {
+            console.error(err);
         }
     };
 
-    const fetchRuns = async () => {
+    const handleRunCreate = async (dto: RunCreateDto) => {
+        if (!trainingPlan) return;
         try {
-            const res = await fetch(`https://localhost:7125/api/training-plan/${currentTrainingPlan?.id}/run`);
-            if (!res.ok) throw new Error('Failed to fetch runs');
-            const data: RunDto[] = await res.json();
-
-            const completed = data.filter(run => run.isCompleted);
-            const upcoming = data.filter(run => !run.isCompleted);
-
-            setCompletedRuns(completed);
-            setUpcomingRuns(upcoming);
-
-        } catch (error) {
-            console.error("Error fetching run entries: ",error);
-        }
-    };
-
-    const handlePlanCreate = async (newEntry: TrainingPlanCreateDto) => {
-        try {
-            const response = await fetch('https://localhost:7125/api/training-plan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newEntry)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to save new run entry');
-            }
-            fetchTrainingPlan();
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleRunCreate = async (entry: RunCreateDto) => {
-        if (!currentTrainingPlan) {
-            console.error("No training plan selected.");
-            return;
-        }
-        const newEntry: RunCreateDto = {
-            ...entry,
-            trainingPlanId: currentTrainingPlan.id
-        };
-        try {
-            const response = await fetch(`https://localhost:7125/api/training-plan/${currentTrainingPlan?.id}/run`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newEntry)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to save new run entry');
-            }
-
-            fetchRuns();
-            setShowAddRunModal(false);
-
-        } catch (error) {
-            console.error(error);
+            dto.trainingPlanId = trainingPlan.id;
+            await createRun(trainingPlan.id, dto);
+            await fetchRuns(trainingPlan.id);
+            setShowRunModal(false);
+        } catch (err) {
+            console.error(err);
         }
     };
 
     const handleDelete = async (id: number) => {
+        if (!trainingPlan) return;
         try {
-            const response = await fetch(`https://localhost:7125/api/training-plan/${currentTrainingPlan?.id}/run/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete run entry');
-            }
-
-            fetchRuns();
-        } catch (error) {
-            console.error(error);
+            await deleteRun(trainingPlan.id, id);
+            await fetchRuns(trainingPlan.id);
+        } catch (err) {
+            console.error(err);
         }
     };
 
-    const handleCompleteRun = async (index: number, distanceKm: number, duration: string) => {
-
-        const runToUpdate = upcomingRuns.find(r => r.id === index);
-
-        if (runToUpdate !== undefined) {
-            const updateEntry: RunUpdateDto = {
-                id: runToUpdate.id,
-                date: runToUpdate.date,
-                place: runToUpdate.place,
-                distanceKm: distanceKm,
-                duration: duration,
-                description: runToUpdate.description,
-                weekNumber: runToUpdate.weekNumber,
-                trainingNumberInWeek: runToUpdate.trainingNumberInWeek,
+    const handleCompleteRun = async (id: number, distanceKm: number, duration: string) => {
+        const run = upcomingRuns.find(r => r.id === id);
+        if (!run || !trainingPlan) return;
+        try {
+            const payload: RunUpdateDto = {
+                ...run,
+                distanceKm,
+                duration,
                 isCompleted: true,
             };
-            try {
-                const response = await fetch(`https://localhost:7125/api/training-plan/${currentTrainingPlan?.id}/run`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updateEntry)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to save new run entry');
-                }
-
-                fetchRuns();
-
-            } catch (error) {
-                console.error(error);
-            }
+            await updateRun(trainingPlan.id, payload);
+            await fetchRuns(trainingPlan.id);
+        } catch (err) {
+            console.error(err);
         }
-         else {
-            console.warn(`Run with ID ${index} not found in upcomingRuns.`);
-        }
-    }
+    };
 
     useEffect(() => {
         fetchTrainingPlan();
-    }, []);
+    }, [fetchTrainingPlan]);
 
     useEffect(() => {
-        if (currentTrainingPlan?.id) {
-            fetchRuns();
+        if (trainingPlan?.id) {
+            fetchRuns(trainingPlan.id);
         }
-    }, [currentTrainingPlan]);
+    }, [trainingPlan, fetchRuns]);
 
     return (
         <>
-            {hasPlan ? (
+            {trainingPlan ? (
                 <>
-                    <div className={styles.planInfoBox}>
+                    <section className={styles.planInfoBox}>
                         <h2>Current Training Plan</h2>
-                        <p><strong>Name:</strong> {currentTrainingPlan?.name}</p>
-                        <p><strong>Description:</strong> {currentTrainingPlan?.description}</p>
-                        <p>
-                            <strong>Duration:</strong> {currentTrainingPlan?.startDate} – {currentTrainingPlan?.endDate}
-                        </p>
-                    </div>
+                        <p><strong>Name:</strong> {trainingPlan.name}</p>
+                        <p><strong>Description:</strong> {trainingPlan.description}</p>
+                        <p><strong>Duration:</strong> {trainingPlan.startDate} – {trainingPlan.endDate}</p>
+                    </section>
 
                     <div className={styles.centeredButtonWrapper}>
-                        <button onClick={handleAddClick}>Add New Run</button>
+                        <button onClick={() => setShowRunModal(true)}>Add New Run</button>
                     </div>
 
                     {completedRuns.length > 0 && (
                         <>
-                            <h2>Completed runs</h2>
+                            <h2>Completed Runs</h2>
                             <CompletedRunsTable entries={completedRuns} onDelete={handleDelete} />
                         </>
                     )}
 
                     {upcomingRuns.length > 0 && (
                         <>
-                            <h2>Upcoming runs</h2>
+                            <h2>Upcoming Runs</h2>
                             <UpcomingRunsTable entries={upcomingRuns} onDelete={handleDelete} onCompleteRun={handleCompleteRun} />
                         </>
                     )}
 
-                    {showAddRunModal && (
+                    {showRunModal && (
                         <div className={styles.modalBackdrop}>
                             <div className={styles.modalContent}>
-                                <RunEntryForm
-                                    onSave={handleRunCreate}
-                                    onCancel={handleCloseModal}
-                                />
+                                <RunEntryForm onSave={handleRunCreate} onCancel={() => setShowRunModal(false)} />
                             </div>
                         </div>
                     )}
                 </>
             ) : (
-                    <div className={styles.noPlanWrapper}>
-                        {showPlanForm ? (
-                            <TrainingPlanForm
-                                onSave={handlePlanCreate}
-                                onCancel={() => setShowPlanForm(false)}
-                            />
-                        ) : (
-                            <>
-                                <p className={styles.noPlanText}>You don't have an active training plan.</p>
-                                <button
-                                    className={styles.createPlanButton}
-                                    onClick={() => setShowPlanForm(true)}
-                                >
-                                    Create training plan
-                                </button>
-                            </>
-                        )}
-                    </div>
+                <div className={styles.noPlanWrapper}>
+                    {showPlanForm ? (
+                        <TrainingPlanForm onSave={handlePlanCreate} onCancel={() => setShowPlanForm(false)} />
+                    ) : (
+                        <>
+                            <p className={styles.noPlanText}>You don't have an active training plan.</p>
+                            <button className={styles.createPlanButton} onClick={() => setShowPlanForm(true)}>
+                                Create Training Plan
+                            </button>
+                        </>
+                    )}
+                </div>
             )}
         </>
     );
-
 };
 
 export default TrainingPlan;
