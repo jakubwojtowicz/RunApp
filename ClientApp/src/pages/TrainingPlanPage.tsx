@@ -21,13 +21,9 @@ const TrainingPlan = () => {
         try {
             const res = await fetch('https://localhost:7125/api/training-plan/current');
 
-            if (res.status === 404) {
-                setHasPlan(false);
-                return;
-            }
-
             if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
+                setHasPlan(false);
+                throw new Error('Failed to fetch training plan');
             }
 
             const data: TrainingPlanDto = await res.json();
@@ -42,7 +38,7 @@ const TrainingPlan = () => {
 
     const fetchRuns = async () => {
         try {
-            const res = await fetch(`https://localhost:7125/api/run/by-plan/${currentTrainingPlan?.id}`);
+            const res = await fetch(`https://localhost:7125/api/training-plan/${currentTrainingPlan?.id}/run`);
             if (!res.ok) throw new Error('Failed to fetch runs');
             const data: RunDto[] = await res.json();
 
@@ -84,7 +80,7 @@ const TrainingPlan = () => {
             trainingPlanId: currentTrainingPlan.id
         };
         try {
-            const response = await fetch('https://localhost:7125/api/run', {
+            const response = await fetch(`https://localhost:7125/api/training-plan/${currentTrainingPlan?.id}/run`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newEntry)
@@ -104,7 +100,7 @@ const TrainingPlan = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await fetch(`https://localhost:7125/api/run/${id}`, {
+            const response = await fetch(`https://localhost:7125/api/training-plan/${currentTrainingPlan?.id}/run/${id}`, {
                 method: 'DELETE'
             });
 
@@ -135,7 +131,7 @@ const TrainingPlan = () => {
                 isCompleted: true,
             };
             try {
-                const response = await fetch('https://localhost:7125/api/run', {
+                const response = await fetch(`https://localhost:7125/api/training-plan/${currentTrainingPlan?.id}/run`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(updateEntry)

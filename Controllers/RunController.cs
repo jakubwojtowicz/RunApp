@@ -8,7 +8,7 @@ using RunApp.Services;
 namespace RunApp.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/training-plan/{trainingPlanId}/run")]
     public class RunController : ControllerBase
     {
         private readonly IRunService _runService;
@@ -19,65 +19,57 @@ namespace RunApp.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<RunDto>> GetAll()
+        public ActionResult<IEnumerable<RunDto>> GetAll([FromRoute] int trainingPlanId)
         {
-            var runs = _runService.GetAll();
-
-            return Ok(runs);
-        }
-
-        [HttpGet("by-plan/{trainingPlanId}")]
-        public ActionResult<IEnumerable<RunDto>> GetByTrainingPlan(int trainingPlanId)
-        {
-            var runs = _runService.GetByTrainingPlan(trainingPlanId);
+            var runs = _runService.GetAll(trainingPlanId);
 
             return Ok(runs);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<RunDto> GetById(int id)
+        public ActionResult<RunDto> GetById([FromRoute] int trainingPlanId, [FromRoute] int id)
         {
-            var run = _runService.GetById(id);
+            var run = _runService.GetById(trainingPlanId, id);
 
             return Ok(run);
         }
 
         [HttpGet("latest")]
-        public ActionResult<RunDto> GetLatestRun()
+        public ActionResult<RunDto> GetLatestRun([FromRoute] int trainingPlanId)
         {
-            var latestRun = _runService.GetLatestRun();
+            var latestRun = _runService.GetLatestRun(trainingPlanId);
 
             return Ok(latestRun);
         }
 
         [HttpPost]
-        public ActionResult Add([FromBody] RunCreateDto dto)
+        public ActionResult Add([FromRoute] int trainingPlanId, [FromBody] RunCreateDto dto)
         {
-            var id = _runService.Add(dto);
+            var id = _runService.Add(trainingPlanId, dto);
 
-            return Created($"/api/run/{id}", null);
+            return Created($"/api/training-plan/{trainingPlanId}/run/{id}", null);
         }
 
         [HttpPut]
-        public ActionResult Update([FromBody] RunUpdateDto dto)
+        public ActionResult Update([FromRoute] int trainingPlanId, [FromBody] RunUpdateDto dto)
         {
-            _runService.Update(dto);
+            _runService.Update(trainingPlanId, dto);
 
             return Ok();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public ActionResult Delete([FromRoute] int trainingPlanId, [FromRoute] int id)
         {
-            _runService.Delete(id);
+            _runService.Delete(trainingPlanId, id);
 
             return NoContent();
         }
 
         [HttpGet("summary")]
-        public ActionResult<object> GetSummary()
+        public ActionResult<object> GetSummary([FromRoute] int trainingPlanId)
         {
-            var summary = _runService.GetSummary();
+            var summary = _runService.GetSummary(trainingPlanId);
 
             return Ok(summary);
         }

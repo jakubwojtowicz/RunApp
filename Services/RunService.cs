@@ -10,14 +10,13 @@ namespace RunApp.Services
 {
     public interface IRunService
     {
-        RunDto GetById(int id);
-        IEnumerable<RunDto> GetByTrainingPlan(int trainingPlanId);
-        IEnumerable<RunDto> GetAll();
-        RunDto GetLatestRun();
-        int Add(RunCreateDto dto);
-        void Update(RunUpdateDto dto);
-        void Delete(int id);
-        object GetSummary();
+        RunDto GetById(int trainingPlanId, int id);
+        IEnumerable<RunDto> GetAll(int trainingPlanId);
+        RunDto GetLatestRun(int trainingPlanId);
+        int Add(int trainingPlanId, RunCreateDto dto);
+        void Update(int trainingPlanId, RunUpdateDto dto);
+        void Delete(int trainingPlanId, int id);
+        object GetSummary(int trainingPlanId);
     }
 
     public class RunService : IRunService
@@ -33,58 +32,55 @@ namespace RunApp.Services
             _logger = logger;
         }
 
-        public RunDto GetById(int id)
+        public RunDto GetById(int trainingPlanId, int id)
         {
+            var plan = _dbContext.TrainingPlans
+                .FirstOrDefault(p => p.Id == trainingPlanId);
+
+            if (plan is null)
+                throw new NotFoundException($"Training plan with the id: {trainingPlanId} doesn't exist in the database.");
+
             var run = _dbContext
                 .Runs
-                .Include(r => r.TrainingPlan)
                 .FirstOrDefault(r => r.Id == id);
 
-            if (run is null) 
-                throw new NotFoundException("Run not found."); 
-               
+            if (run is null || run.TrainingPlanId != trainingPlanId)
+                throw new NotFoundException("Run not found.");
+
             var runDto = _mapper.Map<RunDto>(run);
 
             return runDto;
         }
 
-        public IEnumerable<RunDto> GetByTrainingPlan(int trainingPlanId)
+        public IEnumerable<RunDto> GetAll(int trainingPlanId)
         {
-            var runs = _dbContext.Runs
-                .Where(r => r.TrainingPlanId == trainingPlanId)
-                .Include(r => r.TrainingPlan)
-                .ToList();
+            var plan = _dbContext.
+                TrainingPlans
+                .Include(p => p.Runs)
+                .FirstOrDefault(p => p.Id == trainingPlanId);
 
-            if (runs.Count == 0) 
-                throw new NotFoundException("Runs not found.");
+            if (plan is null)
+                throw new NotFoundException(
+                    $"Training plan with the id: {trainingPlanId} doesn't exist in the database.");
 
-            var runsDto = _mapper.Map<List<RunDto>>(runs);
+            var runsDto = _mapper.Map<List<RunDto>>(plan.Runs);
 
             return runsDto;
         }
 
-        public IEnumerable<RunDto> GetAll()
+        public RunDto GetLatestRun(int trainingPlanId)
         {
-            var runs = _dbContext
-                .Runs
-                .Include(r => r.TrainingPlan)
-                .ToList();
+            var plan = _dbContext.TrainingPlans
+                .FirstOrDefault(p => p.Id == trainingPlanId);
 
-            if (runs.Count == 0) 
-                throw new NotFoundException("Runs not found.");
+            if (plan is null)
+                throw new NotFoundException($"Training plan with the id: {trainingPlanId} doesn't exist in the database.");
 
-            var runsDto = _mapper.Map<List<RunDto>>(runs);
-
-            return runsDto;
-        }
-
-        public RunDto GetLatestRun()
-        {
             var latestRun = _dbContext.Runs
                 .OrderByDescending(r => r.Date)
                 .FirstOrDefault();
 
-            if (latestRun is null) 
+            if (latestRun is null || latestRun.TrainingPlanId != trainingPlanId) 
                 throw new NotFoundException("Run not found.");
 
             var runDto = _mapper.Map<RunDto>(latestRun);
@@ -92,13 +88,13 @@ namespace RunApp.Services
             return runDto;
         }
 
-        public int Add(RunCreateDto dto)
+        public int Add(int trainingPlanId, RunCreateDto dto)
         {
             var plan = _dbContext.TrainingPlans
-                .FirstOrDefault(p => p.Id == dto.TrainingPlanId);
+                .FirstOrDefault(p => p.Id == trainingPlanId);
 
             if (plan is null)
-                throw new BadRequestException($"Training plan with the id: {dto.TrainingPlanId} doesn't exist in the database.");
+                throw new NotFoundException($"Training plan with the id: {trainingPlanId} doesn't exist in the database.");
 
             var run = _mapper.Map<Run>(dto);
             _dbContext.Runs.Add(run);
@@ -107,13 +103,20 @@ namespace RunApp.Services
             return run.Id;
         }
 
-        public void Update(RunUpdateDto dto)
+        public void Update(int trainingPlanId, RunUpdateDto dto)
         {
-            var run = _dbContext.Runs.Find(dto.Id);
+            var plan = _dbContext.TrainingPlans
+                .FirstOrDefault(p => p.Id == trainingPlanId);
 
-            if (run is null)
+            if (plan is null)
+                throw new NotFoundException($"Training plan with the id: {trainingPlanId} doesn't exist in the database.");
+
+            var run = _dbContext
+                .Runs
+                .FirstOrDefault(r => r.Id == dto.Id);
+
+            if (run is null || run.TrainingPlanId != trainingPlanId)
                 throw new NotFoundException("Run not found.");
-            
 
             run.Date = dto.Date;
             run.Place = dto.Place;
@@ -127,27 +130,41 @@ namespace RunApp.Services
             _dbContext.SaveChanges();
         }
 
-        public void Delete(int id)
+        public void Delete(int trainingPlanId, int id)
         {
             _logger.LogWarning($"Run with id {id} DELETE action invoked.");
 
-            var run = _dbContext.Runs.Find(id);
+            var plan = _dbContext.TrainingPlans
+                .FirstOrDefault(p => p.Id == trainingPlanId);
 
-            if (run is null)
+            if (plan is null)
+                throw new NotFoundException($"Training plan with the id: {trainingPlanId} doesn't exist in the database.");
+
+            var run = _dbContext
+                .Runs
+                .FirstOrDefault(r => r.Id == id);
+
+            if (run is null || run.TrainingPlanId != trainingPlanId)
                 throw new NotFoundException("Run not found.");
 
             _dbContext.Runs.Remove(run);
             _dbContext.SaveChanges();
         }
 
-        public object GetSummary()
+        public object GetSummary(int trainingPlanId)
         {
-            var runs = _dbContext.Runs
+            var plan = _dbContext.
+                TrainingPlans
+                .Include(p => p.Runs)
+                .FirstOrDefault(p => p.Id == trainingPlanId);
+
+            if (plan is null)
+                throw new NotFoundException(
+                    $"Training plan with the id: {trainingPlanId} doesn't exist in the database.");
+
+            var runs = plan.Runs
                 .Where(r => r.IsCompleted)
                 .ToList();
-
-            if (runs.Count == 0)
-                throw new NotFoundException("Completed runs not found.");
 
             var totalDistance = runs.Sum(r => r.DistanceKm);
             var totalDuration = runs.Aggregate(TimeSpan.Zero, (acc, r) => (TimeSpan)(acc + r.Duration));
