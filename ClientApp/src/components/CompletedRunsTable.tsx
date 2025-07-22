@@ -11,7 +11,8 @@ const ITEMS_PER_PAGE = 5;
 
 const CompletedRunsTable: React.FC<CompletedRunsTableProps> = ({ entries, onDelete }) => {
     const [currentPage, setCurrentPage] = useState(1);
-
+    const [currentRunId, setCurrentRunId] = useState(0);
+    const [showRemoveRunPrompt, setShowRemoveRunPrompt] = useState(false);
     const sortedEntries = [...entries].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
@@ -60,7 +61,10 @@ const CompletedRunsTable: React.FC<CompletedRunsTableProps> = ({ entries, onDele
                             <td>{entry.description}</td>
                             <td className={styles.actionsCell}>
                                 <button
-                                    onClick={() => onDelete(entry.id)}
+                                    onClick={() => {
+                                        setCurrentRunId(entry.id);
+                                        setShowRemoveRunPrompt(true);
+                                    }}
                                     className={styles.actionButton}
                                 >
                                     Remove
@@ -70,6 +74,27 @@ const CompletedRunsTable: React.FC<CompletedRunsTableProps> = ({ entries, onDele
                     ))}
                 </tbody>
             </table>
+
+            {showRemoveRunPrompt && (
+                <div className={styles.modalBackdrop}>
+                    <div className={styles.modalContent}>
+                        <h2>Do you really want to remove this run entry?</h2>
+                        <div className={styles.buttonsContainer}>
+                            <button className={styles.button} onClick={() => {
+                                onDelete(currentRunId);
+                                setShowRemoveRunPrompt(false)
+                            }}>
+                                Yes
+                            </button>
+
+                            <button className={styles.button} onClick={() => setShowRemoveRunPrompt(false)}>
+                                Cancel
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className={styles.pagination}>
                 <button onClick={handlePrevious} disabled={currentPage === 1}>

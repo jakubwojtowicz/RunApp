@@ -14,6 +14,7 @@ const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete
     const [currentPage, setCurrentPage] = useState(1);
     const [currentRunId, setCurrentRunId] = useState(0);
     const [showCompleteRunModal, setShowCompleteRunModal] = useState(false);
+    const [showRemoveRunPrompt, setShowRemoveRunPrompt] = useState(false);
     const [distanceKm, setDistanceKm] = useState<number | ''>('');
     const [duration, setDuration] = useState('');
 
@@ -37,13 +38,6 @@ const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete
             setCurrentPage(prev => prev + 1);
         }
     };
-
-    const onComplete = (runId: number) => {
-        setShowCompleteRunModal(true);
-        setCurrentRunId(runId);
-    }
-
-    const handleCloseModal = () => setShowCompleteRunModal(false);
 
     const handleCompleteRun = () => {
         onCompleteRun(currentRunId, typeof distanceKm === 'number' ? distanceKm : parseFloat(distanceKm), duration);
@@ -73,13 +67,19 @@ const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete
                             <td>{entry.description}</td>
                             <td className={styles.actionsCell}>
                                 <button
-                                    onClick={() => onDelete(entry.id)}
+                                    onClick={() => {
+                                        setCurrentRunId(entry.id);
+                                        setShowRemoveRunPrompt(true);
+                                    }}
                                     className={`${styles.actionButton} ${styles.remove}`}
                                 >
                                     Remove
                                 </button>
                                 <button
-                                    onClick={() => onComplete(entry.id)}
+                                    onClick={() => {
+                                        setCurrentRunId(entry.id);
+                                        setShowCompleteRunModal(true);
+                                    }}
                                     className={`${styles.actionButton} ${styles.complete}`}
                                 >
                                     Complete
@@ -103,6 +103,7 @@ const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete
             {showCompleteRunModal && (
                 <div className={styles.modalBackdrop}>
                     <div className={styles.modalContent}>
+                        <h2>Enter completed run details.</h2>
                         <form onSubmit={handleCompleteRun} className={styles.form}>
 
                             <label className={styles.label}>
@@ -138,13 +139,33 @@ const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete
                                     Save
                                 </button>
 
-                                <button type="button" className={styles.button} onClick={handleCloseModal}>
+                                <button type="button" className={styles.button} onClick={() => setShowCompleteRunModal(false)}>
                                     Cancel
                                 </button>
 
                             </div>
 
                         </form>
+                    </div>
+                </div>
+            )}
+            {showRemoveRunPrompt && (
+                <div className={styles.modalBackdrop}>
+                    <div className={styles.modalContent}>
+                        <h2>Do you really want to remove this run entry?</h2>
+                        <div className={styles.buttonsContainer}>
+                            <button className={styles.button} onClick={() => {
+                                onDelete(currentRunId);
+                                setShowRemoveRunPrompt(false)
+                            }}>
+                                Yes
+                            </button>
+
+                            <button className={styles.button} onClick={() => setShowRemoveRunPrompt(false)}>
+                                Cancel
+                            </button>
+
+                        </div>
                     </div>
                 </div>
             )}
