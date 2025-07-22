@@ -1,7 +1,13 @@
-﻿.runTable {
+﻿.title{
+    text-align:left;
+    font-size:x-large;
+    padding: 0.5rem;
+}
+
+.runTable {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     font-size: 0.95rem;
     color: #2d3436;
     background-color: #fff;
@@ -36,8 +42,8 @@
 .actionsCell {
     display: flex;
     gap: 0.5rem;
-    justify-content: center;
-    align-items: center;
+    justify-content: left;
+    align-items: left;
 }
 
 .actionButton {
@@ -72,7 +78,8 @@
     justify-content: center;
     align-items: center;
     gap: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
     .pagination button {

@@ -1,16 +1,35 @@
 ﻿import React, { useState } from 'react';
 import { RunDto } from '../api/runApiTypes';
-import styles from './UpcomingRunsTable.module.css';
+import styles from './RunsTable.module.css';
 
-interface UpcomingRunsTableProps {
+interface RunsTableProps {
     entries: RunDto[];
+    showDate?: boolean;
+    showType?: boolean;
+    showWeek?: boolean;
+    showNumber?: boolean;
+    showDescription?: boolean;
+    showDuration?: boolean;
+    showDistance?: boolean;
+    title?: string;
     onDelete: (index: number) => void;
-    onCompleteRun: (index: number, distanceKm: number, duration: string) => void;
+    onCompleteRun?: (index: number, distanceKm: number, duration: string) => void;
 }
 
 const ITEMS_PER_PAGE = 5;
 
-const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete, onCompleteRun }) => {
+const RunsTable: React.FC<RunsTableProps> = ({
+    entries,
+    onDelete,
+    onCompleteRun,
+    title,
+    showDate = true,
+    showType = true,
+    showWeek = true,
+    showNumber = true,
+    showDescription = true,
+    showDuration = true,
+    showDistance = true }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [currentRunId, setCurrentRunId] = useState(0);
     const [showCompleteRunModal, setShowCompleteRunModal] = useState(false);
@@ -40,31 +59,38 @@ const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete
     };
 
     const handleCompleteRun = () => {
-        onCompleteRun(currentRunId, typeof distanceKm === 'number' ? distanceKm : parseFloat(distanceKm), duration);
-        setShowCompleteRunModal(false);
+        if (onCompleteRun) {
+            onCompleteRun(currentRunId, typeof distanceKm === 'number' ? distanceKm : parseFloat(distanceKm), duration);
+            setShowCompleteRunModal(false);
+        }
     }
 
     return (
         <>
+            <h1 className={styles.title}>{title}</h1>
             <table className={styles.runTable}>
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Week</th>
-                        <th>Number</th>
-                        <th>Description</th>
+                        {showDate && <th>Date</th>}
+                        {showType && <th>Type</th>}
+                        {showWeek && <th>Week</th>}
+                        {showNumber && <th>Number</th>}
+                        {showDistance && <th>Distance (km)</th>}
+                        {showDuration && <th>Duration</th>}
+                        {showDescription && <th>Description</th>}
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {currentEntries.map((entry, idx) => (
                         <tr key={idx}>
-                            <td>{entry.date}</td>
-                            <td>{entry.place}</td>
-                            <td>{entry.weekNumber}</td>
-                            <td>{entry.trainingNumberInWeek}</td>
-                            <td>{entry.description}</td>
+                            {showDate && <td>{entry.date}</td>}
+                            {showType && <td>{entry.place}</td>}
+                            {showWeek && <td>{entry.weekNumber}</td>}
+                            {showNumber && <td>{entry.trainingNumberInWeek}</td>}
+                            {showDistance && <td>{entry.distanceKm.toFixed(2)}</td>}
+                            {showDuration && <td>{entry.duration}</td>}
+                            {showDescription && <td>{entry.description}</td>}
                             <td className={styles.actionsCell}>
                                 <button
                                     onClick={() => {
@@ -75,15 +101,16 @@ const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete
                                 >
                                     Remove
                                 </button>
-                                <button
-                                    onClick={() => {
-                                        setCurrentRunId(entry.id);
-                                        setShowCompleteRunModal(true);
-                                    }}
-                                    className={`${styles.actionButton} ${styles.complete}`}
-                                >
-                                    Complete
-                                </button>
+                                {onCompleteRun && (
+                                    <button
+                                        onClick={() => {
+                                            setCurrentRunId(entry.id);
+                                            setShowCompleteRunModal(true);
+                                        }}
+                                        className={`${styles.actionButton} ${styles.complete}`}
+                                    >
+                                        Complete
+                                    </button>)}
                             </td>
                         </tr>
                     ))}
@@ -173,4 +200,4 @@ const UpcomingRunsTable: React.FC<UpcomingRunsTableProps> = ({ entries, onDelete
     );
 };
 
-export default UpcomingRunsTable;
+export default RunsTable;

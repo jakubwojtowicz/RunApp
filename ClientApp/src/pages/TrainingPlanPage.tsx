@@ -1,9 +1,8 @@
 ﻿// TrainingPlan.tsx
 import React, { useEffect, useState, useCallback } from 'react';
 import RunEntryForm from '../components/RunEntryForm';
-import CompletedRunsTable from '../components/CompletedRunsTable';
 import TrainingPlanForm from '../components/TrainingPlanForm';
-import UpcomingRunsTable from '../components/UpcomingRunsTable';
+import RunsTable from '../components/RunsTable';
 import {
     RunCreateDto, RunDto, RunUpdateDto,
     TrainingPlanCreateDto, TrainingPlanDto
@@ -118,19 +117,17 @@ const TrainingPlan: React.FC = () => {
                         <button onClick={() => setShowRunModal(true)}>Add New Run</button>
                     </div>
 
+                    <div className={styles.tables}>
+
                     {completedRuns.length > 0 && (
-                        <>
-                            <h2>Completed Runs</h2>
-                            <CompletedRunsTable entries={completedRuns} onDelete={handleDelete} />
-                        </>
+                            <RunsTable title={'Completed runs'} entries={completedRuns} onDelete={handleDelete} />
                     )}
 
                     {upcomingRuns.length > 0 && (
-                        <>
-                            <h2>Upcoming Runs</h2>
-                            <UpcomingRunsTable entries={upcomingRuns} onDelete={handleDelete} onCompleteRun={handleCompleteRun} />
-                        </>
+                            <RunsTable title={'Upcoming runs'} entries={upcomingRuns} onDelete={handleDelete} onCompleteRun={handleCompleteRun} showDistance={false} showDuration={false} />
                     )}
+
+                    </div>
 
                     {showRunModal && (
                         <div className={styles.modalBackdrop}>
