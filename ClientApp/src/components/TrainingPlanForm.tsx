@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import { useState } from 'react';
-import styles from './TrainingPlanForm.module.css';
+import styles from './Form.module.css';
 import { TrainingPlanCreateDto } from '../api/runApiTypes';
 
 interface TrainingPlanFormProps {
@@ -14,13 +14,11 @@ export default function TrainingPlanForm({ onSave, onCancel }: TrainingPlanFormP
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [isCurrent, setIsCurrent] = useState(false);
-    const [error, setError] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!name || !startDate || !endDate) {
-            setError("Please fill all the fields.");
             return;
         }
 
@@ -42,63 +40,74 @@ export default function TrainingPlanForm({ onSave, onCancel }: TrainingPlanFormP
     };
 
     return (
-        <div className={styles.formWrapper}>
-            <h2>Create training plan</h2>
-            <form onSubmit={handleSubmit} className={styles.form}>
-                {error && <p className={styles.error}>{error}</p>}
+        <form onSubmit={handleSubmit} className={styles.form}>
+            <h2>Create new training plan</h2>
+            <label className={styles.label}>
+                Name:
+                <input
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    required
+                    className={styles.input}
+                />
+            </label>
 
-                <label>
-                    Name:
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                    />
-                </label>
+            <label className={styles.label}>
+                Description:
+                <input
+                    type="text"
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                    required
+                    className={styles.input}
+                />
+            </label>
 
-                <label>
-                    Description:
-                    <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                    />
-                </label>
+            <label className={styles.label}>
+                Start Date:
+                <input
+                    type="date"
+                    value={startDate}
+                    onChange={e => setStartDate(e.target.value)}
+                    required
+                    className={styles.input}
+                />
+            </label>
 
-                <label>
-                    Start Date:
-                    <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        required
-                    />
-                </label>
+            <label className={styles.label}>
+                End Date:
+                <input
+                    type="date"
+                    value={endDate}
+                    onChange={e => setEndDate(e.target.value)}
+                    required
+                    className={styles.input}
+                />
+            </label>
 
-                <label>
-                    End Date:
-                    <input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        required
-                    />
-                </label>
+            <label className={styles.label}>
+                Set as current:
+                <input
+                    type="checkbox"
+                    checked={isCurrent}
+                    onChange={e => setIsCurrent(e.target.checked)}
+                    className={styles.checkbox}
+                />
+            </label>
 
-                <label className={styles.checkboxLabel}>
-                    Set as current:
-                    <input
-                        type="checkbox"
-                        checked={isCurrent}
-                        onChange={(e) => setIsCurrent(e.target.checked)}
-                    />
-                </label>
+            <div className={styles.buttonsContainer}>
 
-                <div className={styles.buttonGroup}>
-                    <button type="submit">Save</button>
-                    <button type="button" onClick={onCancel}>Cancel</button>
-                </div>
-            </form>
-        </div>
+                <button type="submit" className={`${styles.button} ${styles.save}`}>
+                    Save
+                </button>
+
+                <button type="button" className={`${styles.button} ${styles.cancel}`} onClick={onCancel}>
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
     );
 }

@@ -114,7 +114,8 @@ const TrainingPlan: React.FC = () => {
                     </section>
 
                     <div className={styles.centeredButtonWrapper}>
-                        <button onClick={() => setShowRunModal(true)}>Add New Run</button>
+                        <button onClick={() => setShowRunModal(true)}>New Run</button>
+                        <button onClick={() => setShowPlanForm(true)}>New training plan</button>
                     </div>
 
                     <div className={styles.tables}>
@@ -136,6 +137,15 @@ const TrainingPlan: React.FC = () => {
                             </div>
                         </div>
                     )}
+
+                    {showPlanForm && (
+                        <div className={styles.modalBackdrop}>
+                            <div className={styles.modalContent}>
+                                <TrainingPlanForm onSave={handlePlanCreate} onCancel={() => setShowPlanForm(false)} />
+                            </div>
+                        </div>
+                    )}
+
                 </>
             ) : (
                 <div className={styles.noPlanWrapper}>

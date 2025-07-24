@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import styles from './RunEntryForm.module.css';
+import styles from './Form.module.css';
 import { RunCreateDto } from '../api/runApiTypes';
 
 interface RunEntryFormProps {
@@ -55,6 +55,7 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
 
     return (
         <form onSubmit={handleSubmit} className={styles.form}>
+            <h2>Create new run</h2>
             <label className={styles.label}>
                 Date:
                 <input
@@ -141,11 +142,11 @@ const RunEntryForm: React.FC<RunEntryFormProps> = ({ onSave, onCancel }) => {
 
             <div className={styles.buttonsContainer}>
 
-                <button type="submit" className={styles.button}>
+                <button type="submit" className={`${styles.button} ${styles.save}`}>
                     Save
                 </button>
 
-                <button type="button" className={styles.button} onClick={onCancel}>
+                <button type="button" className={`${styles.button} ${styles.cancel}`} onClick={onCancel}>
                     Cancel
                 </button>
 

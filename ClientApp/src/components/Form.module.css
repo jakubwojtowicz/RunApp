@@ -40,10 +40,27 @@ textarea {
     cursor: pointer;
     font-weight: 600;
     transition: background-color 0.3s ease;
+    width: 100px;
 }
 
     .button:hover {
         background-color: #191c1c;
+    }
+
+.cancel {
+    background-color: #ff6b6b;
+}
+
+    .cancel:hover {
+        background-color: #fa5252;
+    }
+
+.save {
+    background-color: #51cf66;
+}
+
+    .save:hover {
+        background-color: #40c057;
     }
 
 .message {
@@ -54,9 +71,9 @@ textarea {
 
 .buttonsContainer {
     display: flex;
-    justify-content: center; 
-    gap: 20px; 
-    margin-top: 20px; 
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
 }
 
 .select {
@@ -71,5 +88,5 @@ textarea {
     height: 18px;
     margin-left: 10px;
     cursor: pointer;
-    accent-color: #007bff; 
+    accent-color: #007bff;
 }

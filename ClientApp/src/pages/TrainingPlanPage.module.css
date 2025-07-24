@@ -33,10 +33,15 @@
         font-size: 1rem;
         cursor: pointer;
         transition: background-color 0.25s ease;
+        width: 200px;
+        height: 60px;
+        margin: 1rem;
+        font-size: large;
     }
 
         .centeredButtonWrapper button:hover {
             background-color: #191c1c;
+            transform: translateY(-1px);
         }
 
 h2 {
@@ -63,7 +68,7 @@ h2 {
     background-color: white;
     padding: 0;
     border-radius: 8px;
-    min-width: 100px;
+    min-width: 400px;
 }
 
 .noPlanWrapper {
