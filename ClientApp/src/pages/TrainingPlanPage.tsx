@@ -15,7 +15,7 @@ import {
     updateRun,
     deleteRun
 } from '../api/runApiCalls';
-import styles from './TrainingPlanPage.module.css';
+import styles from './styles/TrainingPlanPage.module.css';
 
 const TrainingPlan: React.FC = () => {
     const [trainingPlan, setTrainingPlan] = useState<TrainingPlanDto>();

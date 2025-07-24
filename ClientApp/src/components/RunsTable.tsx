@@ -1,6 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { RunDto } from '../api/runApiTypes';
-import styles from './RunsTable.module.css';
+import styles from './styles/RunsTable.module.css';
 
 interface RunsTableProps {
     entries: RunDto[];
