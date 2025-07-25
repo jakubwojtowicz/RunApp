@@ -1,5 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { RunDto } from '../api/runApiTypes';
+import RemovePrompt from './RemovePrompt';
 import styles from './styles/RunsTable.module.css';
 
 interface RunsTableProps {
@@ -177,24 +178,10 @@ const RunsTable: React.FC<RunsTableProps> = ({
                 </div>
             )}
             {showRemoveRunPrompt && (
-                <div className={styles.modalBackdrop}>
-                    <div className={styles.modalContent}>
-                        <h2>Do you really want to remove this run entry?</h2>
-                        <div className={styles.buttonsContainer}>
-                            <button className={styles.button} onClick={() => {
-                                onDelete(currentRunId);
-                                setShowRemoveRunPrompt(false)
-                            }}>
-                                Yes
-                            </button>
-
-                            <button className={styles.button} onClick={() => setShowRemoveRunPrompt(false)}>
-                                Cancel
-                            </button>
-
-                        </div>
-                    </div>
-                </div>
+                <RemovePrompt title={"Do you really want to remove this run entry?"} onCancel={() => setShowRemoveRunPrompt(false)} onConfirm={() => {
+                    onDelete(currentRunId);
+                    setShowRemoveRunPrompt(false);
+                }} ></RemovePrompt>
             )}
         </>
     );

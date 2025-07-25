@@ -25,6 +25,13 @@ export const createTrainingPlan = async (plan: TrainingPlanCreateDto): Promise<v
     if (!res.ok) throw new Error('Failed to create training plan');
 };
 
+export const deleteTrainingPlan = async (planId: number): Promise<void> => {
+    const res = await fetch(`${BASE_URL}/training-plan/${planId}`, {
+        method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to delete run');
+};
+
 export const getRunsForPlan = async (planId: number): Promise<RunDto[]> => {
     const res = await fetch(`${BASE_URL}/training-plan/${planId}/run`);
     if (!res.ok) throw new Error('Failed to fetch runs');

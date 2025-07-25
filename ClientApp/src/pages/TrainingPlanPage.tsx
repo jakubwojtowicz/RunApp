@@ -13,9 +13,11 @@ import {
     createRun,
     updateRun,
     deleteRun,
-    getTrainingPlans
+    getTrainingPlans,
+    deleteTrainingPlan
 } from '../api/runApiCalls';
 import styles from './styles/TrainingPlanPage.module.css';
+import RemovePrompt from '../components/RemovePrompt';
 
 const TrainingPlan: React.FC = () => {
     const [trainingPlans, setTrainingPlans] = useState<TrainingPlanDto[]>(); 
@@ -25,6 +27,7 @@ const TrainingPlan: React.FC = () => {
     const [upcomingRuns, setUpcomingRuns] = useState<RunDto[]>([]);
     const [showPlanForm, setShowPlanForm] = useState(false);
     const [showRunModal, setShowRunModal] = useState(false);
+    const [showRemovePlanPrompt, setShowRemovePlanPrompt] = useState(false);
     
     const fetchTrainingPlans = useCallback(async () => {
         try {
@@ -94,6 +97,17 @@ const TrainingPlan: React.FC = () => {
         }
     };
 
+    const handlePlanDalete = async (id: number) => {
+        try {
+            goToPreviousPlan();
+            await deleteTrainingPlan(id);
+            await fetchTrainingPlans();
+            
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const handleCompleteRun = async (id: number, distanceKm: number, duration: string) => {
         const run = upcomingRuns.find(r => r.id === id);
         if (!run || !currentTrainingPlan) return;
@@ -139,8 +153,9 @@ const TrainingPlan: React.FC = () => {
                     </div>
 
                     <div className={styles.centeredButtonWrapper}>
-                        <button onClick={() => setShowRunModal(true)}>New Run</button>
+                        <button onClick={() => setShowRunModal(true)}>Add Run</button>
                         <button onClick={() => setShowPlanForm(true)}>New training plan</button>
+                        {!trainingPlans[currentIndex].isCurrent && (<button onClick={() => setShowRemovePlanPrompt(true)}>Remove plan</button>)}
                     </div>
 
                     <div className={styles.tables}>
@@ -169,6 +184,13 @@ const TrainingPlan: React.FC = () => {
                                 <TrainingPlanForm onSave={handlePlanCreate} onCancel={() => setShowPlanForm(false)} />
                             </div>
                         </div>
+                    )}
+
+                    {showRemovePlanPrompt && (
+                        <RemovePrompt title={"Do you really want to remove this training plan?"} onCancel={() => setShowRemovePlanPrompt(false)} onConfirm={() => {
+                            handlePlanDalete(trainingPlans[currentIndex].id);
+                            setShowRemovePlanPrompt(false);
+                        }} ></RemovePrompt>
                     )}
 
                 </>
