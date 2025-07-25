@@ -8,29 +8,35 @@ import {
     TrainingPlanCreateDto, TrainingPlanDto
 } from '../api/runApiTypes';
 import {
-    getCurrentTrainingPlan,
     createTrainingPlan,
     getRunsForPlan,
     createRun,
     updateRun,
-    deleteRun
+    deleteRun,
+    getTrainingPlans
 } from '../api/runApiCalls';
 import styles from './styles/TrainingPlanPage.module.css';
 
 const TrainingPlan: React.FC = () => {
-    const [trainingPlan, setTrainingPlan] = useState<TrainingPlanDto>();
+    const [trainingPlans, setTrainingPlans] = useState<TrainingPlanDto[]>(); 
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [currentTrainingPlan, setCurrentTrainingPlan] = useState<TrainingPlanDto>();
     const [completedRuns, setCompletedRuns] = useState<RunDto[]>([]);
     const [upcomingRuns, setUpcomingRuns] = useState<RunDto[]>([]);
     const [showPlanForm, setShowPlanForm] = useState(false);
     const [showRunModal, setShowRunModal] = useState(false);
-
-    const fetchTrainingPlan = useCallback(async () => {
+    
+    const fetchTrainingPlans = useCallback(async () => {
         try {
-            const data = await getCurrentTrainingPlan();
-            setTrainingPlan(data);
+            const data = await getTrainingPlans();
+            setTrainingPlans(data);
+            if (trainingPlans)
+                setCurrentIndex(trainingPlans.findIndex(plan => plan.isCurrent));
+            setCurrentTrainingPlan(data.find(t => t.isCurrent));
         } catch (err) {
             console.error(err);
-            setTrainingPlan(undefined);
+            setTrainingPlans(undefined);
+            setCurrentTrainingPlan(undefined);
         }
     }, []);
 
@@ -44,32 +50,45 @@ const TrainingPlan: React.FC = () => {
         }
     }, []);
 
+    const goToPreviousPlan = () => {
+        if (trainingPlans) {
+            setCurrentIndex((prevIndex) => (prevIndex === 0 ? trainingPlans.length - 1 : prevIndex - 1));
+        }
+    };
+
+    const goToNextPlan = () => {
+        if (trainingPlans) {
+            setCurrentIndex((prevIndex) => (prevIndex === trainingPlans.length - 1 ? 0 : prevIndex + 1));
+        }
+    };
+
     const handlePlanCreate = async (dto: TrainingPlanCreateDto) => {
         try {
             await createTrainingPlan(dto);
-            await fetchTrainingPlan();
+            await fetchTrainingPlans();
+            setShowPlanForm(false)
         } catch (err) {
             console.error(err);
         }
     };
 
     const handleRunCreate = async (dto: RunCreateDto) => {
-        if (!trainingPlan) return;
+        if (!currentTrainingPlan) return;
         try {
-            dto.trainingPlanId = trainingPlan.id;
-            await createRun(trainingPlan.id, dto);
-            await fetchRuns(trainingPlan.id);
+            dto.trainingPlanId = currentTrainingPlan.id;
+            await createRun(currentTrainingPlan.id, dto);
+            await fetchRuns(currentTrainingPlan.id);
             setShowRunModal(false);
         } catch (err) {
             console.error(err);
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!trainingPlan) return;
+    const handleRunDelete = async (id: number) => {
+        if (!currentTrainingPlan) return;
         try {
-            await deleteRun(trainingPlan.id, id);
-            await fetchRuns(trainingPlan.id);
+            await deleteRun(currentTrainingPlan.id, id);
+            await fetchRuns(currentTrainingPlan.id);
         } catch (err) {
             console.error(err);
         }
@@ -77,7 +96,7 @@ const TrainingPlan: React.FC = () => {
 
     const handleCompleteRun = async (id: number, distanceKm: number, duration: string) => {
         const run = upcomingRuns.find(r => r.id === id);
-        if (!run || !trainingPlan) return;
+        if (!run || !currentTrainingPlan) return;
         try {
             const payload: RunUpdateDto = {
                 ...run,
@@ -85,33 +104,39 @@ const TrainingPlan: React.FC = () => {
                 duration,
                 isCompleted: true,
             };
-            await updateRun(trainingPlan.id, payload);
-            await fetchRuns(trainingPlan.id);
+            await updateRun(currentTrainingPlan.id, payload);
+            await fetchRuns(currentTrainingPlan.id);
         } catch (err) {
             console.error(err);
         }
     };
 
     useEffect(() => {
-        fetchTrainingPlan();
-    }, [fetchTrainingPlan]);
+        fetchTrainingPlans();
+    }, [fetchTrainingPlans]);
 
     useEffect(() => {
-        if (trainingPlan?.id) {
-            fetchRuns(trainingPlan.id);
+        if (trainingPlans && trainingPlans.length > 0) {
+            const selectedPlan = trainingPlans[currentIndex];
+            setCurrentTrainingPlan(selectedPlan);
+            fetchRuns(selectedPlan.id);
         }
-    }, [trainingPlan, fetchRuns]);
+    }, [currentIndex, trainingPlans, fetchRuns]);
 
     return (
         <>
-            {trainingPlan ? (
+            {trainingPlans ? (
                 <>
-                    <section className={styles.planInfoBox}>
-                        <h2>Current Training Plan</h2>
-                        <p><strong>Name:</strong> {trainingPlan.name}</p>
-                        <p><strong>Description:</strong> {trainingPlan.description}</p>
-                        <p><strong>Duration:</strong> {trainingPlan.startDate} – {trainingPlan.endDate}</p>
-                    </section>
+                    <div className={styles.sliderContainer}>
+                        <button className={styles.arrowButton} onClick={goToPreviousPlan}>&lt;</button>
+                        <div className={styles.planCard}>
+                            <h2>{trainingPlans[currentIndex].name}</h2>
+                            {trainingPlans[currentIndex].isCurrent && (<h3>(Current)</h3>)}
+                            <p><strong>Description:</strong> {trainingPlans[currentIndex].description}</p>
+                            <p><strong>Duration:</strong> {trainingPlans[currentIndex].startDate} – {trainingPlans[currentIndex].endDate}</p>
+                        </div>
+                        <button className={styles.arrowButton} onClick={goToNextPlan}>&gt;</button>
+                    </div>
 
                     <div className={styles.centeredButtonWrapper}>
                         <button onClick={() => setShowRunModal(true)}>New Run</button>
@@ -121,11 +146,11 @@ const TrainingPlan: React.FC = () => {
                     <div className={styles.tables}>
 
                     {completedRuns.length > 0 && (
-                            <RunsTable title={'Completed runs'} entries={completedRuns} onDelete={handleDelete} />
+                            <RunsTable title={'Completed runs'} entries={completedRuns} onDelete={handleRunDelete} />
                     )}
 
                     {upcomingRuns.length > 0 && (
-                            <RunsTable title={'Upcoming runs'} entries={upcomingRuns} onDelete={handleDelete} onCompleteRun={handleCompleteRun} showDistance={false} showDuration={false} />
+                            <RunsTable title={'Upcoming runs'} entries={upcomingRuns} onDelete={handleRunDelete} onCompleteRun={handleCompleteRun} showDistance={false} showDuration={false} />
                     )}
 
                     </div>

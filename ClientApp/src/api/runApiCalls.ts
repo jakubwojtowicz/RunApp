@@ -4,6 +4,12 @@ import { RunCreateDto, RunUpdateDto, RunDto, TrainingPlanCreateDto, TrainingPlan
 
 const BASE_URL = 'https://localhost:7125/api';
 
+export const getTrainingPlans = async (): Promise<TrainingPlanDto[]> => {
+    const res = await fetch(`${BASE_URL}/training-plan/`);
+    if (!res.ok) throw new Error('Failed to fetch training plan');
+    return res.json();
+};
+
 export const getCurrentTrainingPlan = async (): Promise<TrainingPlanDto> => {
     const res = await fetch(`${BASE_URL}/training-plan/current`);
     if (!res.ok) throw new Error('Failed to fetch training plan');
