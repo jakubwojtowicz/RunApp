@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RunApp.DTO.Run;
 using RunApp.DTO.TrainingPlan;
 using RunApp.Exceptions;
 using RunApp.Models;
@@ -14,6 +15,7 @@ namespace RunApp.Services
         TrainingPlanDto GetById(int id);
         int Add(TrainingPlanCreateDto planDto);
         void Delete(int id);
+        void Update(int trainingPlanId, TrainingPlanUpdateDto dto);
     }
 
     public class TrainingPlanService : ITrainingPlanService
@@ -74,7 +76,8 @@ namespace RunApp.Services
 
             if (current != null && planDto.IsCurrent == true)
             {
-                throw new BadRequestException("Cannot create second current training plan.");
+                _logger.LogWarning($"Setting new current training plan.");
+                current.IsCurrent = false;
             }
 
             var plan = _mapper.Map<TrainingPlan>(planDto);
@@ -94,6 +97,33 @@ namespace RunApp.Services
 
             _dbContext.TrainingPlans.Remove(plan);
             _dbContext.SaveChangesAsync();
+        }
+
+        public void Update(int trainingPlanId, TrainingPlanUpdateDto dto)
+        {
+            var plan = _dbContext.TrainingPlans
+                .FirstOrDefault(p => p.Id == trainingPlanId);
+
+            if (plan is null)
+                throw new NotFoundException($"Training plan with the id: {trainingPlanId} doesn't exist in the database.");
+
+            plan.Name = dto.Name;
+            plan.Description = dto.Description;
+            plan.StartDate = dto.StartDate;
+            plan.EndDate = dto.EndDate;
+
+            if (dto.IsCurrent)
+            {
+                _logger.LogWarning($"TrainingPlan with id: {trainingPlanId} setting as new current plan.");
+                var currentPlan = _dbContext.TrainingPlans
+                    .FirstOrDefault(p => p.IsCurrent == true);
+                if(currentPlan is not null)
+                    currentPlan.IsCurrent = false;
+            }
+
+            plan.IsCurrent = dto.IsCurrent;
+
+            _dbContext.SaveChanges();
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace RunApp.DTO.TrainingPlan
 {
-    public class TrainingPlanUpdateDto
+    public class TrainingPlanCreateDto
     {
         [Required]
         [MaxLength(50)]

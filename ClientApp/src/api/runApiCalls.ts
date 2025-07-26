@@ -1,6 +1,6 @@
 ﻿// src/api/trainingPlanApi.ts
 
-import { RunCreateDto, RunUpdateDto, RunDto, TrainingPlanCreateDto, TrainingPlanDto, RunSummary } from './runApiTypes';
+import { RunCreateDto, RunUpdateDto, RunDto, TrainingPlanCreateDto, TrainingPlanDto, RunSummary, TrainingPlanUpdateDto } from './runApiTypes';
 
 const BASE_URL = 'https://localhost:7125/api';
 
@@ -28,6 +28,15 @@ export const createTrainingPlan = async (plan: TrainingPlanCreateDto): Promise<v
 export const deleteTrainingPlan = async (planId: number): Promise<void> => {
     const res = await fetch(`${BASE_URL}/training-plan/${planId}`, {
         method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to delete run');
+};
+
+export const updateTrainingPlan = async (planId: number, plan: TrainingPlanUpdateDto): Promise<void> => {
+    const res = await fetch(`${BASE_URL}/training-plan/${planId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(plan),
     });
     if (!res.ok) throw new Error('Failed to delete run');
 };

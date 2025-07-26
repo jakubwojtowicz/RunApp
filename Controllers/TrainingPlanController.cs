@@ -61,5 +61,13 @@ namespace RunApp.Controllers
 
             return Ok();
         }
+
+        [HttpPut("{id}")]
+        public ActionResult Update([FromRoute] int id, [FromBody] TrainingPlanUpdateDto dto)
+        {
+            _trainingPlanService.Update(id, dto);
+
+            return Ok();
+        }
     }
 }

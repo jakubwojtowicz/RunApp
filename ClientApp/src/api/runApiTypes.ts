@@ -53,6 +53,14 @@ export interface TrainingPlanCreateDto {
     isCurrent: boolean;
 }
 
+export interface TrainingPlanUpdateDto {
+    name: string;
+    description: string;
+    startDate: string;
+    endDate: string;
+    isCurrent: boolean;
+}
+
 export interface RunSummary {
     totalDistance: number;
     totalDuration: string;
