@@ -72,12 +72,6 @@ export const deleteRun = async (planId: number, runId: number): Promise<void> =>
     if (!res.ok) throw new Error('Failed to delete run');
 };
 
-export const getLatestRun = async (planId: number): Promise<RunDto> => {
-    const res = await fetch(`https://localhost:7125/api/training-plan/${planId}/run/latest`);
-    if (!res.ok) throw new Error('Failed to get latest run');
-    return res.json();
-};
-
 export const getSummary = async (planId: number): Promise<RunSummary> => {
     const res = await fetch(`https://localhost:7125/api/training-plan/${planId}/run/summary`);
     if (!res.ok) throw new Error('Failed to get summary');

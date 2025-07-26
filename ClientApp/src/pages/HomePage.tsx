@@ -4,13 +4,14 @@ import styles from './styles/HomePage.module.css';
 import { RunDto, RunSummary, TrainingPlanDto } from '../api/runApiTypes';
 import {
     getCurrentTrainingPlan,
-    getLatestRun,
+    getRunsForPlan,
     getSummary,
 } from '../api/runApiCalls';
 
 const HomePage: React.FC = () => {
     const [trainingPlan, setTrainingPlan] = useState<TrainingPlanDto | null>(null);
     const [latestRun, setLatestRun] = useState<RunDto | null>(null);
+    const [nextRun, setNextRun] = useState<RunDto | null>(null);
     const [summary, setSummary] = useState<RunSummary | null>(null);
 
     const fetchTrainingPlan = useCallback(async () => {
@@ -23,15 +24,33 @@ const HomePage: React.FC = () => {
         }
     }, []);
 
-    const fetchLatestRun = useCallback(async (planId: number) => {
+    const fetchRuns = useCallback(async (planId: number) => {
         try {
-            const data = await getLatestRun(planId);
-            setLatestRun(data);
+            const data = await getRunsForPlan(planId);
+
+            const completedRuns = data.filter(run => run.isCompleted);
+            const latestCompletedRun = completedRuns.reduce((latest, current) => {
+                return new Date(current.date) > new Date(latest.date) ? current : latest;
+            }, completedRuns[0]);
+
+            const upcomingRuns = data.filter(run => !run.isCompleted);
+            const today = new Date();
+            const nextUpcomingRun = upcomingRuns.reduce((closest, current) => {
+                const currentDiff = Math.abs(new Date(current.date).getTime() - today.getTime());
+                const closestDiff = Math.abs(new Date(closest.date).getTime() - today.getTime());
+                return currentDiff < closestDiff ? current : closest;
+            }, upcomingRuns[0]);
+
+            setLatestRun(latestCompletedRun || null);
+            setNextRun(nextUpcomingRun || null);
+
         } catch (error) {
-            console.error('Failed to fetch latest run:', error);
+            console.error('Failed to fetch runs:', error);
             setLatestRun(null);
+            setNextRun(null);
         }
     }, []);
+
 
     const fetchRunSummary = useCallback(async (planId: number) => {
         try {
@@ -50,9 +69,9 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         if (!trainingPlan?.id) return;
 
-        fetchLatestRun(trainingPlan.id);
+        fetchRuns(trainingPlan.id);
         fetchRunSummary(trainingPlan.id);
-    }, [trainingPlan, fetchLatestRun, fetchRunSummary]);
+    }, [trainingPlan, fetchRuns, fetchRunSummary]);
 
     return (
         <div className={styles.homeContainer}>
@@ -67,6 +86,15 @@ const HomePage: React.FC = () => {
                 </section>
             )}
 
+            {nextRun && (
+                <section className={styles.latestRunCard}>
+                    <h2 className={styles.summaryTitle}>Next Run</h2>
+                    <p><strong>Date:</strong> {nextRun.date}</p>
+                    <p><strong>Type:</strong> {nextRun.place}</p>
+                    <p><strong>Description:</strong> {nextRun.description}</p>
+                </section>
+            )}
+
             {latestRun && (
                 <section className={styles.latestRunCard}>
                     <h2 className={styles.summaryTitle}>Last Run</h2>
@@ -77,6 +105,7 @@ const HomePage: React.FC = () => {
                     <p><strong>Description:</strong> {latestRun.description}</p>
                 </section>
             )}
+
         </div>
     );
 };

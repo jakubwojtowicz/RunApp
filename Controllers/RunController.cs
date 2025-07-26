@@ -34,14 +34,6 @@ namespace RunApp.Controllers
             return Ok(run);
         }
 
-        [HttpGet("latest")]
-        public ActionResult<RunDto> GetLatestRun([FromRoute] int trainingPlanId)
-        {
-            var latestRun = _runService.GetLatestRun(trainingPlanId);
-
-            return Ok(latestRun);
-        }
-
         [HttpPost]
         public ActionResult Add([FromRoute] int trainingPlanId, [FromBody] RunCreateDto dto)
         {
