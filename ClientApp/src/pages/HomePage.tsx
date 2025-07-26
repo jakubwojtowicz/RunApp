@@ -75,7 +75,7 @@ const HomePage: React.FC = () => {
 
     return (
         <div className={styles.homeContainer}>
-            <h1>Welcome to your running dashboard!</h1>
+            <h1>Running dashboard</h1>
 
             {summary && (
                 <section className={styles.summaryCard}>
