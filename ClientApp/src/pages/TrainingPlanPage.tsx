@@ -179,6 +179,7 @@ const TrainingPlan: React.FC = () => {
                     {currentPlan?.isCurrent && <h3>(Current)</h3>}
                     <p><strong>Description:</strong> {currentPlan?.description}</p>
                     <p><strong>Duration:</strong> {currentPlan?.startDate} – {currentPlan?.endDate}</p>
+                    <p><strong>Completed runs:</strong> {completedRuns.length}</p>
                 </div>
                 <button className={styles.arrowButton} onClick={() => changePlanIndex('next')}>&gt;</button>
             </div>
