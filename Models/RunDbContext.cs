@@ -4,7 +4,9 @@ namespace RunApp.Models
 {
     public class RunDbContext : DbContext
     {
-        private string _connectionString = "Data Source=runapp.db";
+        public RunDbContext(DbContextOptions<RunDbContext> options) : base(options)
+        {
+        }
         public DbSet<Run> Runs { get; set; }
         public DbSet<TrainingPlan> TrainingPlans { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,10 +49,6 @@ namespace RunApp.Models
                     v => v.ToDateTime(TimeOnly.MinValue),
                     v => DateOnly.FromDateTime(v));
 
-        }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlite(_connectionString);
         }
     }
 }

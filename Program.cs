@@ -13,6 +13,17 @@ builder.Host.UseNLog();
 
 // Add services to the container.
 
+// Configure Kestrel ports from appsettings.json
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Configure(builder.Configuration.GetSection("Kestrel"));
+});
+
+// Read ConnectionString
+var connectionString = builder.Configuration.GetConnectionString("RunDatabase");
+builder.Services.AddDbContext<RunDbContext>(options =>
+    options.UseSqlite(connectionString));
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -48,6 +59,7 @@ if (!app.Environment.IsDevelopment())
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
+app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
 

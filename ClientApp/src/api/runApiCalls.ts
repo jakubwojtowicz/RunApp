@@ -2,7 +2,7 @@
 
 import { RunCreateDto, RunUpdateDto, RunDto, TrainingPlanCreateDto, TrainingPlanDto, RunSummary, TrainingPlanUpdateDto } from './runApiTypes';
 
-const BASE_URL = 'https://localhost:7125/api';
+const BASE_URL = process.env.REACT_APP_API_URL;
 
 export const getTrainingPlans = async (): Promise<TrainingPlanDto[]> => {
     const res = await fetch(`${BASE_URL}/training-plan/`);
@@ -73,7 +73,7 @@ export const deleteRun = async (planId: number, runId: number): Promise<void> =>
 };
 
 export const getSummary = async (planId: number): Promise<RunSummary> => {
-    const res = await fetch(`https://localhost:7125/api/training-plan/${planId}/run/summary`);
+    const res = await fetch(`${BASE_URL}/training-plan/${planId}/run/summary`);
     if (!res.ok) throw new Error('Failed to get summary');
     return res.json();
 };
