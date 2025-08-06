@@ -2,9 +2,9 @@
 
 ## Project Description
 
-This is an application for managing a runner's training plan. The backend is built with ASP.NET Core, and the frontend is developed in React with TypeScript. Data is stored in a local SQLite database.
+This is a personal project I started when I began running. As my running journey evolves, so does this application. It's designed to help me track my training plans, monitor progress, and organize future runs. The backend is built with ASP.NET Core, and the frontend is developed in React with TypeScript. Data is stored in a local SQLite database.
 
-## Application Features
+## Current Application Features
 
 * View current training plan
 * History of completed runs
@@ -12,7 +12,9 @@ This is an application for managing a runner's training plan. The backend is bui
 * Synchronize data with a local SQLite database
 
 ## Screenshots 
+Home Page:
 <img width="1570" height="871" alt="image" src="https://github.com/user-attachments/assets/6da717b0-f53f-4b13-9b8f-2f3f95ece609" />
+Training Plan Page:
 <img width="1575" height="870" alt="image" src="https://github.com/user-attachments/assets/565eb0bc-8c65-4031-b792-72eb5fd2cde2" />
 
 
@@ -54,4 +56,8 @@ Open your browser and go to:
 http://localhost:7125
 ```
 
+
+
+
+Contact: j.wojtowicz0105@gmail.com
 
