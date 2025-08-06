@@ -24,6 +24,7 @@ var connectionString = builder.Configuration.GetConnectionString("RunDatabase");
 builder.Services.AddDbContext<RunDbContext>(options =>
     options.UseSqlite(connectionString));
 
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -46,6 +47,12 @@ builder.Services.AddScoped<ITrainingPlanService, TrainingPlanService>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<RunDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.UseCors();
 
