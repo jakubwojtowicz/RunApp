@@ -26,7 +26,6 @@ h1 {
     color: #2c3e50;
 }
 
-.summaryCard,
 .latestRunCard {
     background-color: #ffffff;
     border-radius: 16px;
@@ -49,18 +48,9 @@ h1 {
     }
 }
 
-.summaryCard:hover,
 .latestRunCard:hover {
     transform: translateY(-4px);
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
-}
-
-.summaryTitle {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    border-left: 4px solid #3498db;
-    padding-left: 1rem;
-    color: #34495e;
 }
 
 p {
@@ -77,17 +67,12 @@ strong {
         padding: 1rem;
     }
 
-    .summaryCard,
     .latestRunCard {
         padding: 1.2rem;
     }
 
     h1 {
         font-size: 2rem;
-    }
-
-    .summaryTitle {
-        font-size: 1.3rem;
     }
 
     p {

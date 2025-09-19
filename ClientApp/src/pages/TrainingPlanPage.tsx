@@ -12,6 +12,11 @@ import {
     deleteRun, getTrainingPlans, deleteTrainingPlan, updateTrainingPlan
 } from '../api/runApiCalls';
 import styles from './styles/TrainingPlanPage.module.css';
+import Button from "@mui/material/Button";
+import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
+import Typography from '@mui/material/Typography';
+import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
+import PrimaryButton from '../components/base/PrimaryButton';
 
 const TrainingPlan: React.FC = () => {
     const [trainingPlans, setTrainingPlans] = useState<TrainingPlanDto[]>();
@@ -159,12 +164,13 @@ const TrainingPlan: React.FC = () => {
                 {modalState === 'planForm' ? (
                     <TrainingPlanForm onSave={(dto) => handleCreate('plan', dto)} onCancel={() => setModalState(null)} />
                 ) : (
-                    <>
-                        <p className={styles.noPlanText}>You don't have an active training plan.</p>
-                        <button className={styles.createPlanButton} onClick={() => setModalState('planForm')}>
-                            Create Training Plan
-                        </button>
-                    </>
+                    <div style={{ textAlign: "center" }}>
+                        <SentimentDissatisfiedIcon color="warning" sx={{ fontSize: 100, mb: 2 }} />
+                        <Typography variant="h4" gutterBottom>
+                            You don't have an active training plan
+                        </Typography>
+                        <PrimaryButton>Create</PrimaryButton>
+                    </div>
                 )}
             </div>
         );

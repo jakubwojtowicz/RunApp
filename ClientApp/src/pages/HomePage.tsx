@@ -1,7 +1,9 @@
-﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+﻿import React, { useMemo } from 'react';
 import styles from './styles/HomePage.module.css';
 import { useTrainingPlan } from '../context/TrainingPlanContext';
-import { RunDto } from '../api/runApiTypes';
+import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
+import { Box, Button, Typography } from "@mui/material";
+import PrimaryButton from '../components/base/PrimaryButton';
 
 const HomePage: React.FC = () => {
     const { trainingPlan } = useTrainingPlan();
@@ -24,25 +26,42 @@ const HomePage: React.FC = () => {
 
     return (
         <div className={styles.homeContainer}>
-            <h1>Running dashboard</h1>
+            {trainingPlan ? (
+                <>
+                    <h1>Running dashboard</h1>
 
-            {nextRun && (
-                <section className={styles.latestRunCard}>
-                    <h2 className={styles.summaryTitle}>Next Run</h2>
-                    <p><strong>Date:</strong> {nextRun.date}</p>
-                    <p><strong>Type:</strong> {nextRun.runType}</p>
-                </section>
-            )}
+                    {nextRun && (
+                        <section className={styles.latestRunCard}>
+                            <h2 className={styles.summaryTitle}>Next Run</h2>
+                            <p><strong>Date:</strong> {nextRun.date}</p>
+                            <p><strong>Type:</strong> {nextRun.runType}</p>
+                        </section>
+                    )}
 
-            {latestRun && (
-                <section className={styles.latestRunCard}>
-                    <h2 className={styles.summaryTitle}>Last Run</h2>
-                    <p><strong>Date:</strong> {latestRun.date}</p>
-                    <p><strong>Type:</strong> {latestRun.runType}</p>
-                    <p><strong>Distance:</strong> {latestRun.distanceKm} km</p>
-                    <p><strong>Duration:</strong> {latestRun.duration}</p>
-                    <p><strong>Notes:</strong> {latestRun.notes}</p>
-                </section>
+                    {latestRun && (
+                        <section className={styles.latestRunCard}>
+                            <h2 className={styles.summaryTitle}>Last Run</h2>
+                            <p><strong>Date:</strong> {latestRun.date}</p>
+                            <p><strong>Type:</strong> {latestRun.runType}</p>
+                            <p><strong>Distance:</strong> {latestRun.distanceKm} km</p>
+                            <p><strong>Duration:</strong> {latestRun.duration}</p>
+                            <p><strong>Notes:</strong> {latestRun.notes}</p>
+                        </section>
+                     )}
+                </>
+            ) : (
+                <Box
+                    display="flex"
+                    flexDirection="column"
+                    justifyContent="center"
+                    alignItems="center"
+                    minHeight="20vh"
+                >
+                    <Typography variant="h4" gutterBottom>
+                        Hello, let's start your running journey!
+                    </Typography>
+                    <PrimaryButton icon={<DirectionsRunIcon />}>Create training plan</PrimaryButton>
+                </Box>
             )}
 
         </div>
