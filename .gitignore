@@ -238,3 +238,5 @@ runapp.db-wal
 
 # Migrations folder
 Migrations/
+
+wwwroot/
