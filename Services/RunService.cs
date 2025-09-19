@@ -15,7 +15,6 @@ namespace RunApp.Services
         int Add(int trainingPlanId, RunCreateDto dto);
         void Update(int trainingPlanId, RunUpdateDto dto);
         void Delete(int trainingPlanId, int id);
-        object GetSummary(int trainingPlanId);
     }
 
     public class RunService : IRunService
@@ -75,6 +74,12 @@ namespace RunApp.Services
             if (plan is null)
                 throw new NotFoundException($"Training plan with the id: {trainingPlanId} doesn't exist in the database.");
 
+            var runType = _dbContext.RunTypes
+                .FirstOrDefault(p => p.Id == dto.RunTypeId);
+
+            if (runType is null)
+                throw new NotFoundException($"Run Type with the id: {dto.RunTypeId} doesn't exist in the database.");
+
             var run = _mapper.Map<Run>(dto);
             _dbContext.Runs.Add(run);
             _dbContext.SaveChanges();
@@ -98,12 +103,13 @@ namespace RunApp.Services
                 throw new NotFoundException("Run not found.");
 
             run.Date = dto.Date;
-            run.Place = dto.Place;
             run.DistanceKm = dto.DistanceKm;
             run.Duration = dto.Duration;
-            run.Description = dto.Description;
-            run.WeekNumber = dto.WeekNumber;
-            run.TrainingNumberInWeek = dto.TrainingNumberInWeek;
+            run.Notes = dto.Notes;
+            run.HeartRate = dto.HeartRate;
+            run.AverageSpeed = dto.AverageSpeed;
+            run.MinimumSpeed = dto.MinimumSpeed;
+            run.TopSpeed = dto.TopSpeed;
             run.IsCompleted = dto.IsCompleted;
 
             _dbContext.SaveChanges();
@@ -129,36 +135,5 @@ namespace RunApp.Services
             _dbContext.Runs.Remove(run);
             _dbContext.SaveChanges();
         }
-
-        public object GetSummary(int trainingPlanId)
-        {
-            var plan = _dbContext.
-                TrainingPlans
-                .Include(p => p.Runs)
-                .FirstOrDefault(p => p.Id == trainingPlanId);
-
-            if (plan is null)
-                throw new NotFoundException(
-                    $"Training plan with the id: {trainingPlanId} doesn't exist in the database.");
-
-            var runs = plan.Runs
-                .Where(r => r.IsCompleted)
-                .ToList();
-
-            var totalDistance = runs.Sum(r => r.DistanceKm);
-            var totalDuration = runs.Aggregate(TimeSpan.Zero, (acc, r) => (TimeSpan)(acc + r.Duration));
-
-            TimeSpan avgPace = totalDistance > 0
-                ? TimeSpan.FromSeconds((double)(totalDuration.TotalSeconds / totalDistance))
-                : TimeSpan.Zero;
-
-            return new
-            {
-                totalDistance,
-                totalDuration = totalDuration.ToString(@"hh\:mm\:ss"),
-                avgPace = avgPace.ToString(@"mm\:ss")
-            };
-        }
-
     }
 }

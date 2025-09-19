@@ -2,12 +2,12 @@
 
 namespace RunApp.DTO.TrainingPlan
 {
-    public class TrainingPlanCreateDto
+    public class TrainingPlanUpdateDto
     {
+        public int Id { get; set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }
-        [Required]
         [MaxLength(200)]
         public string Description { get; set; }
         public DateOnly StartDate { get; set; }

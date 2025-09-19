@@ -8,27 +8,46 @@ namespace RunApp.Models
         {
         }
         public DbSet<Run> Runs { get; set; }
+        public DbSet<RunType> RunTypes { get; set; }
         public DbSet<TrainingPlan> TrainingPlans { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //Runs table properties
+
             modelBuilder.Entity<Run>()
-                .Property(r => r.Description)
-                .IsRequired()
-                .HasMaxLength(200);
-            modelBuilder.Entity<Run>()
-                .Property(r => r.WeekNumber)
+                .Property(r => r.DistanceKm)
                 .IsRequired();
-            modelBuilder.Entity<Run>()
-                .Property(r => r.TrainingNumberInWeek)
-                .IsRequired();
-            modelBuilder.Entity<Run>()
-                .Property(r => r.Place)
-                .HasMaxLength(100);
             modelBuilder.Entity<Run>()
                 .Property(r => r.Date)
                 .HasConversion(
                     v => v.ToDateTime(TimeOnly.MinValue),
                     v => DateOnly.FromDateTime(v));
+            modelBuilder.Entity<Run>()
+                .Property(r => r.Duration)
+                .IsRequired();
+            modelBuilder.Entity<Run>()
+                .Property(r => r.Notes)
+                .HasMaxLength(200);
+            modelBuilder.Entity<Run>()
+                .Property(r => r.IsCompleted)
+                .IsRequired();
+
+            //RunTypes table properties
+
+            modelBuilder.Entity<RunType>()
+                .Property(r => r.Name)
+                .IsRequired()
+                .HasMaxLength(20);
+
+            modelBuilder.Entity<RunType>().HasData(
+                new RunType { Id = 1, Name = "Recovery Run" },
+                new RunType { Id = 2, Name = "Tempo Run" },
+                new RunType { Id = 3, Name = "Easy Run" },
+                new RunType { Id = 4, Name = "Long Run" }
+            );
+
+            //TrainingPlans table properties
 
             modelBuilder.Entity<TrainingPlan>()
                 .Property(r => r.Name)
@@ -36,8 +55,10 @@ namespace RunApp.Models
                 .HasMaxLength(50);
             modelBuilder.Entity<TrainingPlan>()
                 .Property(r => r.Description)
-                .IsRequired()
                 .HasMaxLength(200);
+            modelBuilder.Entity<TrainingPlan>()
+                .Property(r => r.IsCurrent)
+                .IsRequired();
             modelBuilder.Entity<TrainingPlan>()
                 .Property(r => r.StartDate)
                 .HasConversion(
@@ -48,7 +69,6 @@ namespace RunApp.Models
                 .HasConversion(
                     v => v.ToDateTime(TimeOnly.MinValue),
                     v => DateOnly.FromDateTime(v));
-
         }
     }
 }

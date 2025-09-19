@@ -58,13 +58,5 @@ namespace RunApp.Controllers
             return NoContent();
         }
 
-        [HttpGet("summary")]
-        public ActionResult<object> GetSummary([FromRoute] int trainingPlanId)
-        {
-            var summary = _runService.GetSummary(trainingPlanId);
-
-            return Ok(summary);
-        }
-
     }
 }

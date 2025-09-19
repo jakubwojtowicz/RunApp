@@ -8,17 +8,14 @@ namespace RunApp.DTO.Run
     {
         public int Id { get; set; }
         public DateOnly Date { get; set; }
-        [MaxLength(100)]
-        public string Place { get; set; }
-        public double? DistanceKm { get; set; }
-        public TimeSpan? Duration { get; set; }
-        [Required]
+        public double DistanceKm { get; set; }
+        public TimeSpan Duration { get; set; }
+        public TimeSpan? AverageSpeed { get; set; }
+        public TimeSpan? TopSpeed { get; set; }
+        public TimeSpan? MinimumSpeed { get; set; }
         [MaxLength(200)]
-        public string Description { get; set; }
-        [Required]
-        public int WeekNumber { get; set; }
-        [Required]
-        public int TrainingNumberInWeek { get; set; }
+        public string? Notes { get; set; }
+        public int? HeartRate { get; set; }
         public bool IsCompleted { get; set; }
     }
 }
