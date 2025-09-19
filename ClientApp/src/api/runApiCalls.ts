@@ -1,6 +1,6 @@
 ﻿// src/api/trainingPlanApi.ts
 
-import { RunCreateDto, RunUpdateDto, RunDto, TrainingPlanCreateDto, TrainingPlanDto, RunSummary, TrainingPlanUpdateDto } from './runApiTypes';
+import { RunCreateDto, RunUpdateDto, RunDto, TrainingPlanCreateDto, TrainingPlanDto, TrainingPlanUpdateDto } from './runApiTypes';
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -70,10 +70,4 @@ export const deleteRun = async (planId: number, runId: number): Promise<void> =>
         method: 'DELETE',
     });
     if (!res.ok) throw new Error('Failed to delete run');
-};
-
-export const getSummary = async (planId: number): Promise<RunSummary> => {
-    const res = await fetch(`${BASE_URL}/training-plan/${planId}/run/summary`);
-    if (!res.ok) throw new Error('Failed to get summary');
-    return res.json();
 };

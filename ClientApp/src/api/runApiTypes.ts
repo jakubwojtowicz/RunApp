@@ -1,24 +1,28 @@
 ﻿export interface RunDto {
     id: number;
     date: string;
-    place: 'Outdoor' | 'Treadmill';
+    runType: string;
     distanceKm: number;
     duration: string;
-    description: string;
-    weekNumber: number;
-    trainingNumberInWeek: number;
+    averageSpeed: string;
+    topSpeed: string;
+    minimumSpeed: string;
+    notes: string;
+    heartRate: number;
     isCompleted: boolean;
     trainingPlanId: number;
 }
 
 export interface RunCreateDto {
     date: string;
-    place: 'Outdoor' | 'Treadmill';
-    distanceKm: number | null;
-    duration: string | null;
-    description: string;
-    weekNumber: number;
-    trainingNumberInWeek: number;
+    runTypeId: number;
+    distanceKm: number;
+    duration: string;
+    averageSpeed: string;
+    topSpeed: string;
+    minimumSpeed: string;
+    notes: string;
+    heartRate: number;
     isCompleted: boolean;
     trainingPlanId: number; 
 }
@@ -26,12 +30,13 @@ export interface RunCreateDto {
 export interface RunUpdateDto {
     id: number,
     date: string;
-    place: 'Outdoor' | 'Treadmill';
     distanceKm: number;
     duration: string;
-    description: string;
-    weekNumber: number;
-    trainingNumberInWeek: number;
+    averageSpeed: string;
+    topSpeed: string;
+    minimumSpeed: string;
+    notes: string;
+    heartRate: number;
     isCompleted: boolean;
 }
 
@@ -54,15 +59,10 @@ export interface TrainingPlanCreateDto {
 }
 
 export interface TrainingPlanUpdateDto {
+    id: number;
     name: string;
     description: string;
     startDate: string;
     endDate: string;
     isCurrent: boolean;
-}
-
-export interface RunSummary {
-    totalDistance: number;
-    totalDuration: string;
-    avgPace: string;
 }
