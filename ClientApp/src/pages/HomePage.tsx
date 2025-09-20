@@ -1,12 +1,14 @@
-﻿import React, { useMemo } from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import styles from './styles/HomePage.module.css';
 import { useTrainingPlan } from '../context/TrainingPlanContext';
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import PrimaryButton from '../components/base/PrimaryButton';
+import TrainingPlanFormDialog from '../components/dialogs/TrainingPlanFormDialog';
 
 const HomePage: React.FC = () => {
     const { trainingPlan } = useTrainingPlan();
+    const [openTrainingPlanCreateDialog, setOpenTrainingPlanCreateDialog] = useState(false);
 
     const [latestRun, nextRun] = useMemo(() => {
         if (!trainingPlan?.runs || trainingPlan.runs.length === 0) return [null, null];
@@ -60,7 +62,19 @@ const HomePage: React.FC = () => {
                     <Typography variant="h4" gutterBottom>
                         Hello, let's start your running journey!
                     </Typography>
-                    <PrimaryButton icon={<DirectionsRunIcon />}>Create training plan</PrimaryButton>
+                    <PrimaryButton
+                        icon={<DirectionsRunIcon />}
+                        onClick={() => setOpenTrainingPlanCreateDialog(true)}
+                    >
+                        Create training plan
+                    </PrimaryButton>
+                    <TrainingPlanFormDialog
+                        open={openTrainingPlanCreateDialog}
+                        onClose={() => setOpenTrainingPlanCreateDialog(false)}
+                        onSaved={() => {
+                            console.log("Plan został zapisany – odśwież listę!");
+                        }}
+                    />
                 </Box>
             )}
 
